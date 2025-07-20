@@ -4998,98 +4998,96 @@
         }
       ];
       
-      function tryBookingComplete(variationIndex = 0) {
-        if (variationIndex >= inputVariations.length) {
-          throw new Error('All booking completion variations failed');
-        }
-        
-        const input = inputVariations[variationIndex];
-        console.log(✅ Trying booking completion variation ${variationIndex + 1}:, input);
-        
-        return makeBoulevardRequest(mutation, { input: input })
-          .then(data => {
-            console.log('✅ Booking completed successfully:', data);
-            
-            const result = data.bookingComplete;
-            
-            if (result.bookingWarnings && result.bookingWarnings.length > 0) {
-              console.warn('⚠️ Booking warnings:', result.bookingWarnings);
-            }
-            
-            if (result.bookingAppointments && result.bookingAppointments.length > 0) {
-              const appointment = result.bookingAppointments[0];
-              console.log('✅ Appointment created with ID:', appointment.id);
-              
-              return {
-                success: true,
-                bookingId: result.booking.id,
-                appointmentId: appointment.id,
-                appointment: appointment,
-                warnings: result.bookingWarnings
-              };
-            } else {
-              throw new Error('No appointments were created in the booking');
-            }
-          })
-          .catch(error => {
-            console.error(❌ Booking variation ${variationIndex + 1} failed:, error);
-            
-            if (variationIndex < inputVariations.length - 1) {
-              console.log(⏭️ Trying next variation...);
-              return tryBookingComplete(variationIndex + 1);
-            } else {
-              throw error;
-            }
-          });
+    function tryBookingComplete(variationIndex = 0) {
+  if (variationIndex >= inputVariations.length) {
+    throw new Error('All booking completion variations failed');
+  }
+
+  const input = inputVariations[variationIndex];
+  console.log(`✅ Trying booking completion variation ${variationIndex + 1}:`, input);
+
+  return makeBoulevardRequest(mutation, { input: input })
+    .then(data => {
+      console.log('✅ Booking completed successfully:', data);
+
+      const result = data.bookingComplete;
+
+      if (result.bookingWarnings && result.bookingWarnings.length > 0) {
+        console.warn('⚠️ Booking warnings:', result.bookingWarnings);
       }
-      
-      return tryBookingComplete();
-    }
-    
-    function showFieldError(fieldId, message) {
-      const field = document.getElementById(fieldId);
-      field.classList.add('error');
-      
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error-text';
-      errorDiv.textContent = message;
-      
-      field.parentNode.insertBefore(errorDiv, field.nextSibling);
-    }
-    
-    function showErrorMessage(message) {
-      const container = document.getElementById('messages');
-      const errorMessage = document.createElement('div');
-      errorMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      bubble.innerHTML = <div class="error-message">${message}</div>;
-      
-      errorMessage.appendChild(bubble);
-      container.appendChild(errorMessage);
-      scrollToBottom();
-    }
-    
-    function showBookingSuccess(result) {
-      const injectorText = selectedInjector ? Provider: ${selectedInjector}<br> : '';
-      const bookingIdText = result && result.bookingId ? <br>Booking ID: ${result.bookingId} : '';
-      const appointmentIdText = result && result.appointmentId ? <br>Appointment ID: ${result.appointmentId} : '';
-      
-      const successMessage = <div class="success-message"><strong>✅ Booking Completed Successfully!</strong><br><br> +
-                            Location: ${selectedLocation}<br> +
-                            Service: ${selectedService}<br> +
-                            Date & Time: ${selectedTime.date} at ${selectedTime.time}<br> +
-                            ${injectorText} +
-                            Client: ${clientInfo.firstName} ${clientInfo.lastName}<br> +
-                            ${bookingIdText}${appointmentIdText}<br><br> +
-                            Your appointment has been confirmed and added to our calendar. You should receive a confirmation email shortly.</div>;
-      
-      addMessage('system', successMessage, function() {
-        showPostBookingOptions();
-      });
-    }
-    
+
+      if (result.bookingAppointments && result.bookingAppointments.length > 0) {
+        const appointment = result.bookingAppointments[0];
+        console.log(`✅ Appointment created with ID:`, appointment.id);
+
+        return {
+          success: true,
+          bookingId: result.booking.id,
+          appointmentId: appointment.id,
+          appointment: appointment,
+          warnings: result.bookingWarnings
+        };
+      } else {
+        throw new Error('No appointments were created in the booking');
+      }
+    })
+    .catch(error => {
+      console.error(`❌ Booking variation ${variationIndex + 1} failed:`, error);
+
+      if (variationIndex < inputVariations.length - 1) {
+        console.log(`⏭️ Trying next variation...`);
+        return tryBookingComplete(variationIndex + 1);
+      } else {
+        throw error;
+      }
+    });
+}
+
+// ... other code ...
+
+function showFieldError(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  field.classList.add('error');
+
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error-text';
+  errorDiv.textContent = message;
+
+  field.parentNode.insertBefore(errorDiv, field.nextSibling);
+}
+
+function showErrorMessage(message) {
+  const container = document.getElementById('messages');
+  const errorMessage = document.createElement('div');
+  errorMessage.className = 'message system';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'message-bubble';
+  bubble.innerHTML = `<div class="error-message">${message}</div>`;
+
+  errorMessage.appendChild(bubble);
+  container.appendChild(errorMessage);
+  scrollToBottom();
+}
+
+function showBookingSuccess(result) {
+  const injectorText = selectedInjector ? `Provider: ${selectedInjector}<br>` : '';
+  const bookingIdText = result && result.bookingId ? `<br>Booking ID: ${result.bookingId}` : '';
+  const appointmentIdText = result && result.appointmentId ? `<br>Appointment ID: ${result.appointmentId}` : '';
+
+  const successMessage = `<div class="success-message"><strong>✅ Booking Completed Successfully!</strong><br><br>` +
+    `Location: ${selectedLocation}<br>` +
+    `Service: ${selectedService}<br>` +
+    `Date & Time: ${selectedTime.date} at ${selectedTime.time}<br>` +
+    `${injectorText}` +
+    `Client: ${clientInfo.firstName} ${clientInfo.lastName}<br>` +
+    `${bookingIdText}${appointmentIdText}<br><br>` +
+    `Your appointment has been confirmed and added to our calendar. You should receive a confirmation email shortly.</div>`;
+
+  addMessage('system', successMessage, function () {
+    showPostBookingOptions();
+  });
+}
     function showPostBookingOptions() {
       const container = document.getElementById('messages');
       const optionsMessage = document.createElement('div');
