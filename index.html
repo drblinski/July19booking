@@ -713,11 +713,11 @@
     // Debug logging
     console.log('Widget loading...');
     
-    // Boulevard API Configuration
+    // Boulevard API Configuration - now using proxy route
     const BOULEVARD_CONFIG = {
       businessId: 'f6a06736-1132-4365-b79a-a69c648a746a',
       apiKey: '93ca3f15-6f0e-491d-840b-681a0fef80ed',
-      apiUrl: 'https://dashboard.boulevard.io/api/2020-01/f6a06736-1132-4365-b79a-a69c648a746a/client'
+      apiUrl: '/api/blvd'  // Changed to use proxy route
     };
     
     const LOCATIONS_DATA = {
@@ -777,16 +777,16 @@
       return digitsOnly.length >= 10 && digitsOnly.length <= 15;
     }
     
-    // Boulevard API helper
+    // Boulevard API helper - Updated to use proxy route
     function makeBoulevardRequest(query, variables = {}) {
       console.log('🔥 Making Boulevard request:', { query: query.substring(0, 100) + '...', variables });
       
       return fetch(BOULEVARD_CONFIG.apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': 'Basic ' + btoa(BOULEVARD_CONFIG.apiKey + ':'),
           'Content-Type': 'application/json',
           'Accept': 'application/json'
+          // Removed Authorization header - proxy will handle authentication
         },
         body: JSON.stringify({
           query: query,
@@ -2523,7 +2523,7 @@
       }, 100);
     }
     
-    console.log('✅ Script fully loaded with fixed booking completion');
+    console.log('✅ Script fully loaded with proxy API integration');
   </script>
 </body>
 </html>
