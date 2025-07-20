@@ -12,6 +12,277 @@
       box-sizing: border-box;
     }
     
+    // NEW: Load injectors specifically for availability view
+    function loadInjectorsForAvailability() {
+      console.log('🔍 Loading injectors for availability view...');
+      
+      // Show loading state
+      const container = document.getElementById('messages');
+      const loadingMessage = document.createElement('div');
+      loadingMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = 'Loading our team of injectors...';
+      
+      loadingMessage.appendChild(bubble);
+      container.appendChild(loadingMessage);
+      scrollToBottom();
+      
+      // Get all locations and their staff
+      const locationEntries = Object.entries(LOCATIONS_DATA);
+      console.log('🔍 Loading staff from all locations for availability view');
+      
+      const allStaffPromises = locationEntries.map(([locationName, locationData]) => {
+        const locationId = locationData.locationId.indexOf('urn:blvd:Location:') === 0 ? 
+          locationData.locationId : 'urn:blvd:Location:' + locationData.locationId;
+        
+        const query = `
+          mutation CreateTempCart($locationId: ID!) {
+            createCart(input: { locationId: $locationId }) {
+              cart {
+                id
+                availableCategories {
+                  name
+                  availableItems {
+                    id
+                    name
+                    ... on CartAvailableBookableItem {
+                      staffVariants {
+                        id
+                        staff {
+                          id
+                          firstName
+                          lastName
+                          nickname
+                          avatar
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `;
+        
+        return makeBoulevardRequest(query, { locationId: locationId })
+          .then(data => ({
+            locationName: locationName,
+            locationId: locationId,
+            cart: data.createCart.cart
+          }))
+          .catch(error => {
+            console.error('🔍 Failed to load from location:', locationName, error);
+            return { locationName: locationName, locationId: locationId, cart: null };
+          });
+      });
+      
+      Promise.all(allStaffPromises)
+        .then(responses => {
+          const staffMap = new Map();
+          
+          responses.forEach(response => {
+            if (!response.cart) return;
+            
+            const { locationName, cart } = response;
+            
+            if (cart.availableCategories) {
+              cart.availableCategories.forEach(category => {
+                if (category.availableItems) {
+                  category.availableItems.forEach(item => {
+                    if (item.staffVariants && item.staffVariants.length > 0) {
+                      item.staffVariants.forEach(variant => {
+                        if (variant.staff) {
+                          if (!staffMap.has(variant.staff.id)) {
+                            staffMap.set(variant.staff.id, {
+                              id: variant.staff.id,
+                              firstName: variant.staff.firstName,
+                              lastName: variant.staff.lastName,
+                              nickname: variant.staff.nickname,
+                              avatar: variant.staff.avatar ? { url: variant.staff.avatar } : null,
+                              locations: [locationName]
+                            });
+                          } else {
+                            const staff = staffMap.get(variant.staff.id);
+                            if (!staff.locations.includes(locationName)) {
+                              staff.locations.push(locationName);
+                            }
+                          }
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          });
+          
+          const staffList = Array.from(staffMap.values());
+          
+          if (staffList.length > 0) {
+            console.log('✅ Successfully loaded staff for availability view:', staffList);
+            availableStaff = staffList;
+            assignLocationColors(staffList);
+            showInjectorsForAvailability();
+          } else {
+            console.log('❌ No staff found, using mock data');
+            loadMockStaffForAvailability();
+          }
+        })
+        .catch(error => {
+          console.error('❌ Failed to load staff:', error);
+          loadMockStaffForAvailability();
+        });
+    }
+    
+    function loadMockStaffForAvailability() {
+      const mockStaff = [
+        {
+          id: 'staff1',
+          firstName: 'Sarah',
+          lastName: 'Johnson',
+          avatar: null,
+          locations: ['West Village', 'SoHo']
+        },
+        {
+          id: 'staff2',
+          firstName: 'Michael',
+          lastName: 'Chen',
+          avatar: null,
+          locations: ['Tribeca', 'Williamsburg']
+        },
+        {
+          id: 'staff3',
+          firstName: 'Emily',
+          lastName: 'Rodriguez',
+          avatar: null,
+          locations: ['Hoboken', 'Uptown']
+        },
+        {
+          id: 'staff4',
+          firstName: 'David',
+          lastName: 'Thompson',
+          avatar: null,
+          locations: ['Miami', 'West Village']
+        },
+        {
+          id: 'staff5',
+          firstName: 'Jessica',
+          lastName: 'Martinez',
+          avatar: null,
+          locations: ['SoHo', 'Tribeca']
+        }
+      ];
+      
+      availableStaff = mockStaff;
+      assignLocationColors(mockStaff);
+      showInjectorsForAvailability();
+    }
+    
+    function assignLocationColors(staffList) {
+      const colors = ['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#5856D6', '#AF52DE', '#FF2D92', '#64D2FF'];
+      const allLocations = new Set();
+      
+      staffList.forEach(staff => {
+        staff.locations.forEach(location => allLocations.add(location));
+      });
+      
+      const locationArray = Array.from(allLocations);
+      locationColors = {};
+      
+      locationArray.forEach((location, index) => {
+        locationColors[location] = colors[index % colors.length];
+      });
+      
+      console.log('🎨 Assigned location colors:', locationColors);
+    }
+    
+    function showInjectorsForAvailability() {
+      console.log('🎨 Showing injectors for availability view');
+      
+      // Remove loading message
+      const messages = document.querySelectorAll('.message');
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.textContent.includes('Loading our team')) {
+        lastMessage.remove();
+      }
+      
+      const container = document.getElementById('messages');
+      const injectorsMessage = document.createElement('div');
+      injectorsMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.innerHTML = 'Select an injector to view their availability across all locations:';
+      
+      const injectorContainer = document.createElement('div');
+      injectorContainer.className = 'injector-container';
+      
+      const injectorList = document.createElement('div');
+      injectorList.className = 'injector-list';
+      
+      // Show individual injectors
+      availableStaff.forEach((staff, index) => {
+        const item = document.createElement('div');
+        item.className = 'injector-item';
+        item.onclick = () => selectInjectorForAvailability(staff);
+        
+        const photo = document.createElement('div');
+        photo.className = 'injector-photo';
+        if (staff.avatar && staff.avatar.url) {
+          photo.style.backgroundImage = `url(${staff.avatar.url})`;
+        }
+        
+        const name = document.createElement('div');
+        name.className = 'injector-name';
+        name.textContent = `${staff.firstName} ${staff.lastName}`;
+        
+        // Add location info
+        const locations = document.createElement('div');
+        locations.style.fontSize = '0.8rem';
+        locations.style.color = isMemberTheme ? '#999' : '#86868b';
+        locations.style.marginTop = '4px';
+        locations.textContent = staff.locations.join(', ');
+        
+        const info = document.createElement('div');
+        info.style.flex = '1';
+        info.appendChild(name);
+        info.appendChild(locations);
+        
+        item.appendChild(photo);
+        item.appendChild(info);
+        
+        injectorList.appendChild(item);
+      });
+      
+      injectorContainer.appendChild(injectorList);
+      bubble.appendChild(injectorContainer);
+      
+      injectorsMessage.appendChild(bubble);
+      container.appendChild(injectorsMessage);
+      scrollToBottom();
+    }
+    
+    function selectInjectorForAvailability(staff) {
+      resetBookingState(); // Reset when selecting injector
+      
+      selectedInjector = `${staff.firstName} ${staff.lastName}`;
+      selectedInjectorId = staff.id;
+      injectorLocations = staff.locations;
+      
+      // Initialize all locations as visible
+      visibleLocations = new Set(staff.locations);
+      
+      addMessage('user', selectedInjector);
+      addMessage('system', `Perfect! Loading ${selectedInjector}'s availability across all locations...`, function() {
+        // For now, just show a placeholder since we'd need the full calendar implementation
+        addMessage('system', `${selectedInjector} works at: ${staff.locations.join(', ')}. Contact us to book with them specifically!`, function() {
+          showSMSOption();
+        });
+      });
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: #f8f9fa;
@@ -1083,6 +1354,8 @@
     // Global state
     let conversationState = 'start';
     let clientType = null;
+    let treatmentType = null;
+    let bookingFlow = null;
     let isMemberTheme = false;
     let selectedInjector = null;
     let selectedInjectorId = null;
@@ -1098,6 +1371,10 @@
     let currentCalendarDate = new Date();
     let calendarAvailability = {};
     let selectedDate = null;
+    let injectorLocations = []; // For injector availability view
+    let locationColors = {}; // Color mapping for locations
+    let visibleLocations = new Set(); // Which locations are currently visible
+    let injectorAvailabilityData = {}; // Availability data for injector view
     
     console.log('State initialized');
     
@@ -1207,10 +1484,15 @@
       // Reset state
       resetBookingState();
       clientType = null;
+      treatmentType = null;
+      bookingFlow = null;
       isMemberTheme = false;
       availableStaff = [];
       availableServices = [];
       clientInfo = {};
+      injectorLocations = [];
+      locationColors = {};
+      visibleLocations = new Set();
       
       // Reset theme
       initializeMemberTheme();
@@ -1375,9 +1657,228 @@
                           type === 'new' ? 'New Client' : 'Member';
       
       addMessage('user', clientTypeText);
-      addMessage('system', 'Perfect! Let me show you our team of injectors...', function() {
-        loadInjectors();
+      addMessage('system', 'Perfect! Now, what type of treatment are you interested in?', function() {
+        showTreatmentTypeSelection();
       });
+    }
+    
+    function showTreatmentTypeSelection() {
+      console.log('Showing treatment type selection');
+      const container = document.getElementById('messages');
+      const treatmentMessage = document.createElement('div');
+      treatmentMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      
+      const grid = document.createElement('div');
+      grid.className = 'client-type-grid'; // Reuse the same styling
+      
+      // Injectable button
+      const injectableButton = document.createElement('button');
+      injectableButton.className = 'client-type-button';
+      injectableButton.onclick = () => selectTreatmentType('injectable');
+      
+      const injectableTitle = document.createElement('div');
+      injectableTitle.className = 'client-type-title';
+      injectableTitle.textContent = 'Injectable Treatments';
+      
+      const injectableDesc = document.createElement('div');
+      injectableDesc.className = 'client-type-desc';
+      injectableDesc.textContent = 'Botox, fillers, and other injectable services';
+      
+      injectableButton.appendChild(injectableTitle);
+      injectableButton.appendChild(injectableDesc);
+      
+      // Skin treatments button
+      const skinButton = document.createElement('button');
+      skinButton.className = 'client-type-button';
+      skinButton.onclick = () => selectTreatmentType('skin');
+      
+      const skinTitle = document.createElement('div');
+      skinTitle.className = 'client-type-title';
+      skinTitle.textContent = 'Skin Treatments';
+      
+      const skinDesc = document.createElement('div');
+      skinDesc.className = 'client-type-desc';
+      skinDesc.textContent = 'Laser, microneedling, and skincare services';
+      
+      skinButton.appendChild(skinTitle);
+      skinButton.appendChild(skinDesc);
+      
+      // See Staff Schedules button
+      const staffSchedulesButton = document.createElement('button');
+      staffSchedulesButton.className = 'client-type-button';
+      staffSchedulesButton.onclick = () => selectTreatmentType('injector-availability');
+      
+      const staffSchedulesTitle = document.createElement('div');
+      staffSchedulesTitle.className = 'client-type-title';
+      staffSchedulesTitle.textContent = 'See Staff Schedules';
+      
+      const staffSchedulesDesc = document.createElement('div');
+      staffSchedulesDesc.className = 'client-type-desc';
+      staffSchedulesDesc.textContent = 'View open slots for your preferred injector across all locations';
+      
+      staffSchedulesButton.appendChild(staffSchedulesTitle);
+      staffSchedulesButton.appendChild(staffSchedulesDesc);
+      
+      grid.appendChild(injectableButton);
+      grid.appendChild(skinButton);
+      grid.appendChild(staffSchedulesButton);
+      
+      bubble.appendChild(grid);
+      treatmentMessage.appendChild(bubble);
+      container.appendChild(treatmentMessage);
+      scrollToBottom();
+    }
+    
+    function selectTreatmentType(type) {
+      // Reset state when changing treatment type
+      resetBookingState();
+      
+      treatmentType = type;
+      
+      if (type === 'injectable') {
+        addMessage('user', 'Injectable Treatments');
+        addMessage('system', 'Great! For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
+          showInjectableBookingFlow();
+        });
+      } else if (type === 'skin') {
+        addMessage('user', 'Skin Treatments');
+        addMessage('system', 'Perfect! For skin treatments, would you like to book with a specific provider or choose a location first?', function() {
+          showSkinBookingFlow();
+        });
+      } else if (type === 'injector-availability') {
+        addMessage('user', 'See Staff Schedules');
+        addMessage('system', 'Perfect! Let me load our team of injectors and their availability...', function() {
+          loadInjectorsForAvailability();
+        });
+      }
+    }
+    
+    function showInjectableBookingFlow() {
+      const container = document.getElementById('messages');
+      const flowMessage = document.createElement('div');
+      flowMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      
+      const grid = document.createElement('div');
+      grid.className = 'client-type-grid';
+      
+      // Book by injector
+      const injectorButton = document.createElement('button');
+      injectorButton.className = 'client-type-button';
+      injectorButton.onclick = () => selectBookingFlow('by-injector');
+      
+      const injectorTitle = document.createElement('div');
+      injectorTitle.className = 'client-type-title';
+      injectorTitle.textContent = 'Book by Injector';
+      
+      const injectorDesc = document.createElement('div');
+      injectorDesc.className = 'client-type-desc';
+      injectorDesc.textContent = 'Choose your preferred injector first';
+      
+      injectorButton.appendChild(injectorTitle);
+      injectorButton.appendChild(injectorDesc);
+      
+      // Book by location
+      const locationButton = document.createElement('button');
+      locationButton.className = 'client-type-button';
+      locationButton.onclick = () => selectBookingFlow('by-location');
+      
+      const locationTitle = document.createElement('div');
+      locationTitle.className = 'client-type-title';
+      locationTitle.textContent = 'Book by Location';
+      
+      const locationDesc = document.createElement('div');
+      locationDesc.className = 'client-type-desc';
+      locationDesc.textContent = 'Choose your preferred location first';
+      
+      locationButton.appendChild(locationTitle);
+      locationButton.appendChild(locationDesc);
+      
+      grid.appendChild(injectorButton);
+      grid.appendChild(locationButton);
+      
+      bubble.appendChild(grid);
+      flowMessage.appendChild(bubble);
+      container.appendChild(flowMessage);
+      scrollToBottom();
+    }
+    
+    function showSkinBookingFlow() {
+      const container = document.getElementById('messages');
+      const flowMessage = document.createElement('div');
+      flowMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      
+      const grid = document.createElement('div');
+      grid.className = 'client-type-grid';
+      
+      // Book by provider
+      const providerButton = document.createElement('button');
+      providerButton.className = 'client-type-button';
+      providerButton.onclick = () => selectBookingFlow('by-injector');
+      
+      const providerTitle = document.createElement('div');
+      providerTitle.className = 'client-type-title';
+      providerTitle.textContent = 'Book by Provider';
+      
+      const providerDesc = document.createElement('div');
+      providerDesc.className = 'client-type-desc';
+      providerDesc.textContent = 'Choose your preferred provider first';
+      
+      providerButton.appendChild(providerTitle);
+      providerButton.appendChild(providerDesc);
+      
+      // Book by location
+      const locationButton = document.createElement('button');
+      locationButton.className = 'client-type-button';
+      locationButton.onclick = () => selectBookingFlow('by-location');
+      
+      const locationTitle = document.createElement('div');
+      locationTitle.className = 'client-type-title';
+      locationTitle.textContent = 'Book by Location';
+      
+      const locationDesc = document.createElement('div');
+      locationDesc.className = 'client-type-desc';
+      locationDesc.textContent = 'Choose your preferred location first';
+      
+      locationButton.appendChild(locationTitle);
+      locationButton.appendChild(locationDesc);
+      
+      grid.appendChild(providerButton);
+      grid.appendChild(locationButton);
+      
+      bubble.appendChild(grid);
+      flowMessage.appendChild(bubble);
+      container.appendChild(flowMessage);
+      scrollToBottom();
+    }
+    
+    function selectBookingFlow(flow) {
+      // Reset state when changing booking flow
+      resetBookingState();
+      
+      bookingFlow = flow;
+      addMessage('user', flow === 'by-injector' ? 
+        (treatmentType === 'skin' ? 'Book by Provider' : 'Book by Injector') : 
+        'Book by Location');
+      
+      if (flow === 'by-injector') {
+        const providerType = treatmentType === 'skin' ? 'providers' : 'injectors';
+        addMessage('system', `Let me show you our available ${providerType}...`, function() {
+          loadInjectors();
+        });
+      } else {
+        addMessage('system', 'Please select your preferred location:', function() {
+          showLocationSelection();
+        });
+      }
     }
     
     function loadInjectors() {
@@ -1828,7 +2329,26 @@
       let foundService = false;
       
       for (const category of categories) {
-        const categoryItems = category.availableItems || [];
+        let categoryItems = category.availableItems || [];
+        
+        // Filter services by treatment type
+        if (treatmentType === 'injectable') {
+          categoryItems = categoryItems.filter(item => 
+            item.name.toLowerCase().includes('botox') ||
+            item.name.toLowerCase().includes('filler') ||
+            item.name.toLowerCase().includes('inject') ||
+            item.name.toLowerCase().includes('dysport') ||
+            category.name.toLowerCase().includes('inject')
+          );
+        } else if (treatmentType === 'skin') {
+          categoryItems = categoryItems.filter(item => 
+            item.name.toLowerCase().includes('laser') ||
+            item.name.toLowerCase().includes('microneedling') ||
+            item.name.toLowerCase().includes('facial') ||
+            item.name.toLowerCase().includes('peel') ||
+            category.name.toLowerCase().includes('skin')
+          );
+        }
         
         for (const item of categoryItems) {
           // Get staff variants for this service
@@ -1847,7 +2367,8 @@
             selectedServiceId = item.id;
             
             console.log('🎯 Auto-assigned service:', selectedService);
-            addMessage('system', `Great! I've assigned ${selectedService} for your appointment. Now let me find available times...`);
+            const treatmentLabel = treatmentType === 'injectable' ? 'injectable treatment' : 'skin treatment';
+            addMessage('system', `Great! I've assigned ${selectedService} for your ${treatmentLabel} appointment. Now let me find available times...`);
             
             // Add the service to cart and proceed
             addServiceToCart(staffVariants[0].id);
@@ -1861,7 +2382,8 @@
       
       if (!foundService) {
         console.log('❌ No services found for this injector at this location');
-        showErrorFallback('No services available for this injector at this location. Please try a different combination.');
+        const treatmentLabel = treatmentType === 'injectable' ? 'injectable treatments' : 'skin treatments';
+        showErrorFallback(`No ${treatmentLabel} available for this injector at this location. Please try a different combination.`);
       }
     }
     
