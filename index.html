@@ -166,6 +166,21 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
     }
+    .member-button {
+  background: #1d1d1f !important;
+  color: #fff !important;
+  border-color: #1d1d1f !important;
+}
+
+.member-button:hover {
+  background: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+}
+
+.member-button .treatment-desc {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
     
     .treatment-title {
       font-weight: 600;
@@ -1220,7 +1235,7 @@
       visibleLocations = new Set();
       injectorAvailabilityData = {};
       
-      addMessage('system', "Hi! Welcome to Get Plump. I'll help you book your appointment.", function() {
+      addMessage('system', "Hi! Welcome to Plump. I'll help you book your appointment.", function() {
         addMessage('system', "What type of treatment are you interested in?", function() {
           showTreatmentTypeSelection();
         });
@@ -1369,25 +1384,25 @@
     }
     
     function selectTreatmentType(type) {
-      treatmentType = type;
-      
-      if (type === 'injectable') {
-        addMessage('user', 'Injectable Treatments');
-        addMessage('system', 'Great! For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
-          showInjectableBookingFlow();
-        });
-      } else if (type === 'skin') {
-        addMessage('user', 'Skin Treatments');
-        addMessage('system', 'Perfect! Please select your preferred location:', function() {
-          showLocationSelection();
-        });
-      } else if (type === 'injector-availability') {
-        addMessage('user', 'See a Specific Injector\'s Availability');
-        addMessage('system', 'Perfect! Let me load our team of injectors and their availability...', function() {
-          loadInjectorsForAvailability();
-        });
-      }
-    }
+  treatmentType = type;
+  
+  if (type === 'injectable') {
+    addMessage('user', 'Injectable Treatments');
+    addMessage('system', 'Great! First, what type of client are you?', function() {
+      showClientSelection();
+    });
+  } else if (type === 'skin') {
+    addMessage('user', 'Skin Treatments');
+    addMessage('system', 'Perfect! First, what type of client are you?', function() {
+      showClientSelection();
+    });
+  } else if (type === 'injector-availability') {
+    addMessage('user', 'See a Specific Injector\'s Availability');
+    addMessage('system', 'Perfect! Let me load our team of injectors and their availability...', function() {
+      loadInjectorsForAvailability();
+    });
+  }
+}
     
     function showInjectableBookingFlow() {
       const container = document.getElementById('messages');
@@ -2293,15 +2308,28 @@
       const container = document.getElementById('injector-availability-container');
       container.innerHTML = '';
       
-      // Calendar header
-      const calendarHeader = document.createElement('div');
-      calendarHeader.className = 'calendar-header';
-      
-      const calendarTitle = document.createElement('div');
-      calendarTitle.className = 'calendar-title';
-      calendarTitle.textContent = `${selectedInjector}'s Availability`;
-      
-      calendarHeader.appendChild(calendarTitle);
+   // Calendar header
+const calendarHeader = document.createElement('div');
+calendarHeader.className = 'calendar-header';
+
+const prevButton = document.createElement('button');
+prevButton.className = 'calendar-nav';
+prevButton.textContent = '← Previous';
+prevButton.onclick = () => navigateInjectorMonth(-1);
+
+const calendarTitle = document.createElement('div');
+calendarTitle.className = 'calendar-title';
+const displayDate = currentCalendarDate || new Date();
+calendarTitle.textContent = `${selectedInjector}'s Availability - ${displayDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+
+const nextButton = document.createElement('button');
+nextButton.className = 'calendar-nav';
+nextButton.textContent = 'Next →';
+nextButton.onclick = () => navigateInjectorMonth(1);
+
+calendarHeader.appendChild(prevButton);
+calendarHeader.appendChild(calendarTitle);
+calendarHeader.appendChild(nextButton);
       
       // Calendar grid
       const calendarGrid = document.createElement('div');
@@ -2395,6 +2423,17 @@
       timeSlotsContainer.style.display = 'none';
       container.appendChild(timeSlotsContainer);
     }
+
+    function navigateInjectorMonth(direction) {
+  if (!currentCalendarDate) {
+    currentCalendarDate = new Date();
+  }
+  currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+  
+  // Reload availability for new month
+  injectorAvailabilityData = {};
+  loadInjectorAvailabilityAcrossLocations();
+}
     
     function selectInjectorDate(date) {
       selectedDate = date;
@@ -2646,7 +2685,82 @@
         showLocationSelection();
       });
     }
+    function showStaffSelectionForLocation() {
+  addMessage('system', `Great! Would you like to choose a specific injector at ${selectedLocation}?`, function() {
+    const container = document.getElementById('messages');
+    const staffMessage = document.createElement('div');
+    staffMessage.className = 'message system';
     
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    
+    const injectorContainer = document.createElement('div');
+    injectorContainer.className = 'injector-container';
+    
+    const injectorList = document.createElement('div');
+    injectorList.className = 'injector-list';
+    
+    // First Available option
+    const firstAvailableItem = document.createElement('div');
+    firstAvailableItem.className = 'injector-item first-available';
+    firstAvailableItem.onclick = () => {
+      selectedInjector = 'First Available';
+      selectedInjectorId = 'first-available';
+      addMessage('user', 'First Available');
+      addMessage('system', 'Perfect! Let me show you our available services...', function() {
+        showServices();
+      });
+    };
+    
+    const firstAvailablePhoto = document.createElement('div');
+    firstAvailablePhoto.className = 'injector-photo';
+    
+    const firstAvailableName = document.createElement('div');
+    firstAvailableName.className = 'injector-name';
+    firstAvailableName.textContent = 'First Available';
+    
+    firstAvailableItem.appendChild(firstAvailablePhoto);
+    firstAvailableItem.appendChild(firstAvailableName);
+    injectorList.appendChild(firstAvailableItem);
+    
+    // Show injectors available at this location
+    availableStaff.forEach(staff => {
+      if (!staff.locations || staff.locations.includes(selectedLocation)) {
+        const item = document.createElement('div');
+        item.className = 'injector-item';
+        item.onclick = () => {
+          selectedInjector = `${staff.firstName} ${staff.lastName}`;
+          selectedInjectorId = staff.id;
+          addMessage('user', selectedInjector);
+          addMessage('system', `Perfect! Let me show you ${selectedInjector}'s available services...`, function() {
+            showServices();
+          });
+        };
+        
+        const photo = document.createElement('div');
+        photo.className = 'injector-photo';
+        if (staff.avatar && staff.avatar.url) {
+          photo.style.backgroundImage = `url(${staff.avatar.url})`;
+        }
+        
+        const name = document.createElement('div');
+        name.className = 'injector-name';
+        name.textContent = `${staff.firstName} ${staff.lastName}`;
+        
+        item.appendChild(photo);
+        item.appendChild(name);
+        injectorList.appendChild(item);
+      }
+    });
+    
+    injectorContainer.appendChild(injectorList);
+    bubble.appendChild(injectorContainer);
+    
+    staffMessage.appendChild(bubble);
+    container.appendChild(staffMessage);
+    scrollToBottom();
+  });
+}
     function showLocationSelection() {
       const container = document.getElementById('messages');
       const locationMessage = document.createElement('div');
@@ -2685,15 +2799,14 @@
       scrollToBottom();
     }
     
-    function selectLocation(location) {
-      selectedLocation = location;
-      selectedLocationId = LOCATIONS_DATA[location].locationId;
-      addMessage('user', location);
-      
-      addMessage('system', `Perfect! Creating your booking session for ${location}...`);
-      createCart();
-    }
-    
+ function selectLocation(location) {
+  selectedLocation = location;
+  selectedLocationId = LOCATIONS_DATA[location].locationId;
+  addMessage('user', location);
+  
+  addMessage('system', `Perfect! Creating your booking session for ${location}...`);
+  createCart();
+}
     function createCart() {
       const formattedLocationId = selectedLocationId.indexOf('urn:blvd:Location:') === 0 ? 
         selectedLocationId : 'urn:blvd:Location:' + selectedLocationId;
@@ -2795,12 +2908,17 @@
       
       if (services.length > 0) {
         availableServices = services;
+        // If booking by location for injectables, show staff selection first
+if (bookingFlow === 'by-location' && treatmentType === 'injectable') {
+  showStaffSelectionForLocation();
+  return;
+}
         showServices();
       } else {
         showServiceFallback();
       }
     }
-    
+  
     function showServices() {
       const treatmentLabel = treatmentType === 'injectable' ? 'injectable treatments' : 'skin treatments';
       addMessage('system', `Here are the available ${treatmentLabel} at ${selectedLocation}:`, function() {
@@ -2915,7 +3033,7 @@
       makeBoulevardRequest(mutation, variables)
         .then(data => {
           console.log('Service added to cart');
-          showClientSelection();
+   loadCalendarAvailability();
         })
         .catch(error => {
           console.error('Failed to add service:', error.message);
@@ -2923,72 +3041,102 @@
         });
     }
     function showClientSelection() {
-  addMessage('system', 'Is this appointment for a new client or an existing client?', function() {
-    const container = document.getElementById('messages');
-    const clientMessage = document.createElement('div');
-    clientMessage.className = 'message system';
-    
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble';
-    
-    const grid = document.createElement('div');
-    grid.className = 'treatment-grid';
-    
-    // New client button
-    const newClientButton = document.createElement('button');
-    newClientButton.className = 'treatment-button';
-    newClientButton.onclick = () => selectClientType('new');
-    
-    const newClientTitle = document.createElement('div');
-    newClientTitle.className = 'treatment-title';
-    newClientTitle.textContent = 'New Client';
-    
-    const newClientDesc = document.createElement('div');
-    newClientDesc.className = 'treatment-desc';
-    newClientDesc.textContent = 'First time at Get Plump';
-    
-    newClientButton.appendChild(newClientTitle);
-    newClientButton.appendChild(newClientDesc);
-    
-    // Existing client button
-    const existingClientButton = document.createElement('button');
-    existingClientButton.className = 'treatment-button';
-    existingClientButton.onclick = () => selectClientType('existing');
-    
-    const existingClientTitle = document.createElement('div');
-    existingClientTitle.className = 'treatment-title';
-    existingClientTitle.textContent = 'Existing Client';
-    
-    const existingClientDesc = document.createElement('div');
-    existingClientDesc.className = 'treatment-desc';
-    existingClientDesc.textContent = 'I\'ve been to Get Plump before';
-    
-    existingClientButton.appendChild(existingClientTitle);
-    existingClientButton.appendChild(existingClientDesc);
-    
-    grid.appendChild(newClientButton);
-    grid.appendChild(existingClientButton);
-    
-    bubble.appendChild(grid);
-    clientMessage.appendChild(bubble);
-    container.appendChild(clientMessage);
-    scrollToBottom();
-  });
+  const container = document.getElementById('messages');
+  const clientMessage = document.createElement('div');
+  clientMessage.className = 'message system';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'message-bubble';
+  
+  const grid = document.createElement('div');
+  grid.className = 'treatment-grid';
+  grid.style.gridTemplateColumns = '1fr'; // Stack vertically for 3 options
+  
+  // Existing client button
+  const existingClientButton = document.createElement('button');
+  existingClientButton.className = 'treatment-button';
+  existingClientButton.onclick = () => selectClientType('existing');
+  
+  const existingClientTitle = document.createElement('div');
+  existingClientTitle.className = 'treatment-title';
+  existingClientTitle.textContent = 'Existing Client';
+  
+  const existingClientDesc = document.createElement('div');
+  existingClientDesc.className = 'treatment-desc';
+  existingClientDesc.textContent = 'I\'ve been to Get Plump before';
+  
+  existingClientButton.appendChild(existingClientTitle);
+  existingClientButton.appendChild(existingClientDesc);
+  
+  // New client button
+  const newClientButton = document.createElement('button');
+  newClientButton.className = 'treatment-button';
+  newClientButton.onclick = () => selectClientType('new');
+  
+  const newClientTitle = document.createElement('div');
+  newClientTitle.className = 'treatment-title';
+  newClientTitle.textContent = 'New Client';
+  
+  const newClientDesc = document.createElement('div');
+  newClientDesc.className = 'treatment-desc';
+  newClientDesc.textContent = 'First time at Get Plump';
+  
+  newClientButton.appendChild(newClientTitle);
+  newClientButton.appendChild(newClientDesc);
+  
+  // Member button (special styling)
+  const memberButton = document.createElement('button');
+  memberButton.className = 'treatment-button member-button';
+  memberButton.onclick = () => selectClientType('member');
+  
+  const memberTitle = document.createElement('div');
+  memberTitle.className = 'treatment-title';
+  memberTitle.textContent = 'Member';
+  
+  const memberDesc = document.createElement('div');
+  memberDesc.className = 'treatment-desc';
+  memberDesc.textContent = 'I\'m a Get Plump member';
+  
+  memberButton.appendChild(memberTitle);
+  memberButton.appendChild(memberDesc);
+  
+  grid.appendChild(existingClientButton);
+  grid.appendChild(newClientButton);
+  grid.appendChild(memberButton);
+  
+  bubble.appendChild(grid);
+  clientMessage.appendChild(bubble);
+  container.appendChild(clientMessage);
+  scrollToBottom();
 }
 
 function selectClientType(clientType) {
-  addMessage('user', clientType === 'new' ? 'New Client' : 'Existing Client');
+  const clientTypeNames = {
+    'existing': 'Existing Client',
+    'new': 'New Client', 
+    'member': 'Member'
+  };
+  
+  addMessage('user', clientTypeNames[clientType]);
   
   // Store client type for later use
   clientInfo.clientType = clientType;
   
+  let message = 'Perfect!';
   if (clientType === 'new') {
-    addMessage('system', 'Perfect! As a new client, you\'ll receive our new client special pricing. Let me find available appointment times...', function() {
-      loadCalendarAvailability();
+    message = 'Perfect! As a new client, you\'ll receive our new client special pricing.';
+  } else if (clientType === 'member') {
+    message = 'Welcome back! Applying your member benefits.';
+  }
+  
+  // Continue based on treatment type
+  if (treatmentType === 'injectable') {
+    addMessage('system', message + ' For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
+      showInjectableBookingFlow();
     });
-  } else {
-    addMessage('system', 'Great! Let me find available appointment times for your return visit...', function() {
-      loadCalendarAvailability();
+  } else if (treatmentType === 'skin') {
+    addMessage('system', message + ' Please select your preferred location:', function() {
+      showLocationSelection();
     });
   }
 }
