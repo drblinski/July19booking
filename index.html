@@ -1532,7 +1532,7 @@
       }
     }
     
-    function loadInjectors() {
+    function loadInjectors(callback) {
       console.log('🔍 Loading injectors from Boulevard API...');
       
       // Show loading state
@@ -1676,20 +1676,21 @@
             
             // Force refresh the injector display
             console.log('🔄 Refreshing injector display...');
-            showInjectors();
+            if (callback) callback();
+            else showInjectors();
           } else {
             console.log('❌ No staff found in Boulevard API, using enhanced mock data');
-            loadEnhancedMockStaff();
+            loadEnhancedMockStaff(callback);
           }
         })
         .catch(error => {
           console.error('❌ Failed to load staff from all locations:', error);
           console.log('❌ Falling back to enhanced mock staff data');
-          loadEnhancedMockStaff();
+          loadEnhancedMockStaff(callback);
         });
     }
     
-    function loadEnhancedMockStaff() {
+    function loadEnhancedMockStaff(callback) {
       console.log('Using enhanced mock staff data with more comprehensive team');
       
       const mockStaff = [
@@ -1785,7 +1786,8 @@
       
       availableStaff = mockStaff;
       console.log('✅ Enhanced mock staff loaded:', mockStaff.length, 'team members');
-      showInjectors();
+      if (callback) callback();
+      else showInjectors();
     }
     
     function showInjectors() {
@@ -3373,7 +3375,11 @@ function navigateMultiLocationMonth(direction) {
     if (bookingFlow === 'by-location' && 
         (!selectedInjectorId || selectedInjectorId === 'first-available')) {
       console.log('🎯 Showing staff selection for location-based booking');
-      showStaffSelectionForLocation();
+      if (availableStaff.length === 0) {
+        loadInjectors(() => showStaffSelectionForLocation());
+      } else {
+        showStaffSelectionForLocation();
+      }
       return;
     }
     
