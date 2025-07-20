@@ -2258,63 +2258,64 @@
         });
     }
     
-    function showInjectorAvailabilityCalendar() {
-      const container = document.getElementById('messages');
-      const calendarMessage = document.createElement('div');
-      calendarMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      
-      // Location legend and toggle
-      const legend = document.createElement('div');
-      legend.className = 'location-legend';
-      
-      const legendTitle = document.createElement('div');
-      legendTitle.className = 'legend-title';
-      legendTitle.textContent = 'Locations (click to toggle):';
-      
-      const legendItems = document.createElement('div');
-      legendItems.className = 'legend-items';
-      
-      injectorLocations.forEach(locationName => {
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        if (!visibleLocations.has(locationName)) {
-          legendItem.classList.add('inactive');
-        }
-        
-        legendItem.onclick = () => toggleLocationVisibility(locationName);
-        
-        const colorDiv = document.createElement('div');
-        colorDiv.className = 'legend-color';
-        colorDiv.style.backgroundColor = locationColors[locationName];
-        
-        const nameDiv = document.createElement('div');
-        nameDiv.textContent = locationName;
-        
-        legendItem.appendChild(colorDiv);
-        legendItem.appendChild(nameDiv);
-        legendItems.appendChild(legendItem);
-      });
-      
-      legend.appendChild(legendTitle);
-      legend.appendChild(legendItems);
-      
-      // Calendar container
-      const availabilityContainer = document.createElement('div');
-      availabilityContainer.className = 'availability-container';
-      availabilityContainer.id = 'injector-availability-container';
-      
-      bubble.appendChild(legend);
-      bubble.appendChild(availabilityContainer);
-      
-      calendarMessage.appendChild(bubble);
-      container.appendChild(calendarMessage);
-      scrollToBottom();
-      
-      renderInjectorAvailabilityCalendar();
+    function function showInjectorAvailabilityCalendar() {
+  const container = document.getElementById('messages');
+  const calendarMessage = document.createElement('div');
+  calendarMessage.className = 'message system';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'message-bubble';
+  
+  // Location legend and toggle (FIRST)
+  const legend = document.createElement('div');
+  legend.className = 'location-legend';
+  
+  const legendTitle = document.createElement('div');
+  legendTitle.className = 'legend-title';
+  legendTitle.textContent = 'Locations (click to toggle):';
+  
+  const legendItems = document.createElement('div');
+  legendItems.className = 'legend-items';
+  
+  injectorLocations.forEach(locationName => {
+    const legendItem = document.createElement('div');
+    legendItem.className = 'legend-item';
+    if (!visibleLocations.has(locationName)) {
+      legendItem.classList.add('inactive');
     }
+    
+    legendItem.onclick = () => toggleLocationVisibility(locationName);
+    
+    const colorDiv = document.createElement('div');
+    colorDiv.className = 'legend-color';
+    colorDiv.style.backgroundColor = locationColors[locationName];
+    
+    const nameDiv = document.createElement('div');
+    nameDiv.textContent = locationName;
+    
+    legendItem.appendChild(colorDiv);
+    legendItem.appendChild(nameDiv);
+    legendItems.appendChild(legendItem);
+  });
+  
+  legend.appendChild(legendTitle);
+  legend.appendChild(legendItems);
+  
+  // Calendar container (SECOND)
+  const availabilityContainer = document.createElement('div');
+  availabilityContainer.className = 'availability-container';
+  availabilityContainer.id = 'injector-availability-container';
+  
+  // Add legend FIRST, then calendar
+  bubble.appendChild(legend);
+  bubble.appendChild(availabilityContainer);
+  
+  calendarMessage.appendChild(bubble);
+  container.appendChild(calendarMessage);
+  scrollToBottom();
+  
+  renderInjectorAvailabilityCalendar();
+}
     
     function toggleLocationVisibility(locationName) {
       if (visibleLocations.has(locationName)) {
@@ -2341,124 +2342,130 @@
     }
     
     function renderInjectorAvailabilityCalendar() {
-      const container = document.getElementById('injector-availability-container');
-      container.innerHTML = '';
-      
-   // Calendar header
-const calendarHeader = document.createElement('div');
-calendarHeader.className = 'calendar-header';
+  const container = document.getElementById('injector-availability-container');
+  container.innerHTML = '';
+  
+  // Initialize current calendar date if not set
+  if (!currentCalendarDate) {
+    currentCalendarDate = new Date();
+    currentCalendarDate.setDate(1);
+    currentCalendarDate.setHours(0, 0, 0, 0);
+  }
+  
+  // Calendar header
+  const calendarHeader = document.createElement('div');
+  calendarHeader.className = 'calendar-header';
 
-const prevButton = document.createElement('button');
-prevButton.className = 'calendar-nav';
-prevButton.textContent = '← Previous';
-prevButton.onclick = () => navigateInjectorMonth(-1);
+  const prevButton = document.createElement('button');
+  prevButton.className = 'calendar-nav';
+  prevButton.textContent = '← Previous';
+  prevButton.onclick = () => navigateInjectorMonth(-1);
 
-const calendarTitle = document.createElement('div');
-calendarTitle.className = 'calendar-title';
-const displayDate = currentCalendarDate || new Date();
-calendarTitle.textContent = `${selectedInjector}'s Availability - ${displayDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+  const calendarTitle = document.createElement('div');
+  calendarTitle.className = 'calendar-title';
+  calendarTitle.textContent = `${selectedInjector}'s Availability - ${currentCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
 
-const nextButton = document.createElement('button');
-nextButton.className = 'calendar-nav';
-nextButton.textContent = 'Next →';
-nextButton.onclick = () => navigateInjectorMonth(1);
+  const nextButton = document.createElement('button');
+  nextButton.className = 'calendar-nav';
+  nextButton.textContent = 'Next →';
+  nextButton.onclick = () => navigateInjectorMonth(1);
 
-calendarHeader.appendChild(prevButton);
-calendarHeader.appendChild(calendarTitle);
-calendarHeader.appendChild(nextButton);
+  calendarHeader.appendChild(prevButton);
+  calendarHeader.appendChild(calendarTitle);
+  calendarHeader.appendChild(nextButton);
       
-      // Calendar grid
-      const calendarGrid = document.createElement('div');
-      calendarGrid.className = 'calendar-grid';
+  // Calendar grid
+  const calendarGrid = document.createElement('div');
+  calendarGrid.className = 'calendar-grid';
+  
+  // Day headers
+  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  dayHeaders.forEach(day => {
+    const dayHeader = document.createElement('div');
+    dayHeader.className = 'calendar-day-header';
+    dayHeader.textContent = day;
+    calendarGrid.appendChild(dayHeader);
+  });
+  
+  // Generate calendar for current month using currentCalendarDate (FIXED!)
+  const today = new Date();
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  
+  // Add empty cells for days before the first day of the month
+  for (let i = 0; i < firstDay.getDay(); i++) {
+    const emptyDay = document.createElement('div');
+    emptyDay.className = 'calendar-day disabled';
+    calendarGrid.appendChild(emptyDay);
+  }
+  
+  // Add days of the month
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const date = new Date(year, month, day);
+    const dateStr = date.toISOString().split('T')[0];
+    const dayElement = document.createElement('div');
+    dayElement.className = 'calendar-day injector-calendar-day';
+    
+    // Check if day is in the past
+    if (date < today) {
+      dayElement.classList.add('disabled');
+    } else {
+      dayElement.onclick = () => selectInjectorDate(date);
+    }
+    
+    const dayNumber = document.createElement('div');
+    dayNumber.className = 'day-number';
+    dayNumber.textContent = day;
+    
+    const slotsContainer = document.createElement('div');
+    slotsContainer.className = 'calendar-slots';
+    
+    // Add slot indicators for visible locations
+    const dayData = injectorAvailabilityData[dateStr];
+    if (dayData) {
+      let hasSlots = false;
       
-      // Day headers
-      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      dayHeaders.forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'calendar-day-header';
-        dayHeader.textContent = day;
-        calendarGrid.appendChild(dayHeader);
-      });
-      
-      // Generate calendar for current month using currentCalendarDate
-const today = new Date(); // Keep this for past/future date comparison
-const year = currentCalendarDate.getFullYear();
-const month = currentCalendarDate.getMonth();
-const firstDay = new Date(year, month, 1);
-const lastDay = new Date(year, month + 1, 0);
-      
-      // Add empty cells for days before the first day of the month
-      for (let i = 0; i < firstDay.getDay(); i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day disabled';
-        calendarGrid.appendChild(emptyDay);
-      }
-      
-      // Add days of the month
-      for (let day = 1; day <= lastDay.getDate(); day++) {
-        const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split('T')[0];
-        const dayElement = document.createElement('div');
-        dayElement.className = 'calendar-day injector-calendar-day';
+      Object.keys(dayData).forEach(locationName => {
+        if (!visibleLocations.has(locationName)) return;
         
-        // Check if day is in the past
-        if (date < today) {
-          dayElement.classList.add('disabled');
-        } else {
-          dayElement.onclick = () => selectInjectorDate(date);
-        }
-        
-        const dayNumber = document.createElement('div');
-        dayNumber.className = 'day-number';
-        dayNumber.textContent = day;
-        
-        const slotsContainer = document.createElement('div');
-        slotsContainer.className = 'calendar-slots';
-        
-        // Add slot indicators for visible locations
-        const dayData = injectorAvailabilityData[dateStr];
-        if (dayData) {
-          let hasSlots = false;
+        const slots = dayData[locationName];
+        if (slots && slots.length > 0) {
+          hasSlots = true;
           
-          Object.keys(dayData).forEach(locationName => {
-            if (!visibleLocations.has(locationName)) return;
-            
-            const slots = dayData[locationName];
-            if (slots && slots.length > 0) {
-              hasSlots = true;
-              
-              // Show up to 3 slot indicators per location
-              const slotsToShow = Math.min(3, slots.length);
-              for (let i = 0; i < slotsToShow; i++) {
-                const slotIndicator = document.createElement('div');
-                slotIndicator.className = 'slot-indicator';
-                slotIndicator.style.backgroundColor = locationColors[locationName];
-                slotIndicator.title = `${locationName} - ${slots.length} slot${slots.length > 1 ? 's' : ''}`;
-                slotsContainer.appendChild(slotIndicator);
-              }
-            }
-          });
-          
-          if (hasSlots) {
-            dayElement.classList.add('has-availability');
+          // Show up to 3 slot indicators per location
+          const slotsToShow = Math.min(3, slots.length);
+          for (let i = 0; i < slotsToShow; i++) {
+            const slotIndicator = document.createElement('div');
+            slotIndicator.className = 'slot-indicator';
+            slotIndicator.style.backgroundColor = locationColors[locationName];
+            slotIndicator.title = `${locationName} - ${slots.length} slot${slots.length > 1 ? 's' : ''}`;
+            slotsContainer.appendChild(slotIndicator);
           }
         }
-        
-        dayElement.appendChild(dayNumber);
-        dayElement.appendChild(slotsContainer);
-        calendarGrid.appendChild(dayElement);
+      });
+      
+      if (hasSlots) {
+        dayElement.classList.add('has-availability');
       }
-      
-      container.appendChild(calendarHeader);
-      container.appendChild(calendarGrid);
-      
-      // Time slots container (initially hidden)
-      const timeSlotsContainer = document.createElement('div');
-      timeSlotsContainer.className = 'injector-time-slots';
-      timeSlotsContainer.id = 'injector-time-slots-container';
-      timeSlotsContainer.style.display = 'none';
-      container.appendChild(timeSlotsContainer);
     }
+    
+    dayElement.appendChild(dayNumber);
+    dayElement.appendChild(slotsContainer);
+    calendarGrid.appendChild(dayElement);
+  }
+  
+  container.appendChild(calendarHeader);
+  container.appendChild(calendarGrid);
+  
+  // Time slots container (initially hidden)
+  const timeSlotsContainer = document.createElement('div');
+  timeSlotsContainer.className = 'injector-time-slots';
+  timeSlotsContainer.id = 'injector-time-slots-container';
+  timeSlotsContainer.style.display = 'none';
+  container.appendChild(timeSlotsContainer);
+}
 
     function navigateInjectorMonth(direction) {
   if (!currentCalendarDate) {
