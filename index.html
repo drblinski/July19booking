@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Appointment | Get Plump</title>
+  <title>Book Appointment | Plump</title>
   
   <style>
     * {
@@ -20,6 +20,11 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    body.member-theme {
+      background: #0a0a0a;
     }
     
     .booking-widget {
@@ -34,45 +39,31 @@
       height: 85vh;
       min-height: 650px;
       position: relative;
+      transition: all 0.3s ease;
     }
     
-    /* Membership Banner */
-    .membership-banner {
-      background: linear-gradient(135deg, #FFB89A 0%, #FFA07A 100%);
-      color: white;
+    body.member-theme .booking-widget {
+      background: #1a1a1a;
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.15);
+      border: 1px solid #333;
+    }
+    
+    /* Member Info Banner */
+    .member-info-banner {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000;
       padding: 12px 24px;
       text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      font-weight: 500;
+      font-weight: 600;
       font-size: 0.9rem;
+      display: none;
     }
     
-    .membership-banner::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      animation: shimmer 3s infinite;
+    body.member-theme .member-info-banner {
+      display: block;
     }
     
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
-    }
-    
-    .membership-banner:hover {
-      background: linear-gradient(135deg, #FF9A7A 0%, #FF8A6A 100%);
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(255, 138, 106, 0.2);
-    }
-    
-    .member-credits {
+    .member-info-content {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -80,18 +71,11 @@
       flex-wrap: wrap;
     }
     
-    .credit-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-    }
-    
-    .credit-badge {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 4px 10px;
+    .member-badge {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 4px 12px;
       border-radius: 12px;
-      font-weight: 600;
+      font-weight: 700;
     }
     
     .chat-header {
@@ -99,6 +83,12 @@
       padding: 24px 32px;
       border-bottom: 1px solid #f0f1f3;
       text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    body.member-theme .chat-header {
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
     }
     
     .chat-title {
@@ -107,12 +97,22 @@
       font-weight: 700;
       margin-bottom: 6px;
       letter-spacing: -0.02em;
+      transition: all 0.3s ease;
+    }
+    
+    body.member-theme .chat-title {
+      color: #FFD700;
     }
     
     .chat-subtitle {
       color: #6b7280;
       font-size: 1rem;
       font-weight: 400;
+      transition: all 0.3s ease;
+    }
+    
+    body.member-theme .chat-subtitle {
+      color: #999;
     }
     
     .messages-container {
@@ -121,6 +121,11 @@
       overflow-y: auto;
       scroll-behavior: smooth;
       background: #fff;
+      transition: all 0.3s ease;
+    }
+    
+    body.member-theme .messages-container {
+      background: #1a1a1a;
     }
     
     .message {
@@ -157,6 +162,7 @@
       line-height: 1.5;
       word-wrap: break-word;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
     }
     
     .message.system .message-bubble {
@@ -165,10 +171,21 @@
       border-bottom-left-radius: 8px;
     }
     
+    body.member-theme .message.system .message-bubble {
+      background: #2a2a2a;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.1);
+    }
+    
     .message.user .message-bubble {
       background: linear-gradient(135deg, #FFB89A 0%, #FFA07A 100%);
       color: #fff;
       border-bottom-right-radius: 8px;
+    }
+    
+    body.member-theme .message.user .message-bubble {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000;
     }
     
     .typing-indicator {
@@ -180,6 +197,10 @@
       border-bottom-left-radius: 8px;
       max-width: 90px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    body.member-theme .typing-indicator {
+      background: #2a2a2a;
     }
     
     .typing-dots {
@@ -195,6 +216,10 @@
       animation: typing 1.4s infinite;
     }
     
+    body.member-theme .dot {
+      background: #FFD700;
+    }
+    
     .dot:nth-child(2) { animation-delay: 0.2s; }
     .dot:nth-child(3) { animation-delay: 0.4s; }
     
@@ -203,19 +228,19 @@
       30% { transform: translateY(-8px); opacity: 1; }
     }
     
-    /* Treatment Type Selection */
-    .treatment-grid {
+    /* Client Type Selection */
+    .client-type-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 20px;
       margin-top: 20px;
     }
     
-    .treatment-button {
+    .client-type-button {
       background: #fff;
       border: 2px solid #f0f1f3;
       color: #1a1d1f;
-      padding: 28px;
+      padding: 32px;
       border-radius: 20px;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -225,26 +250,58 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
     
-    .treatment-button:hover {
+    body.member-theme .client-type-button {
+      background: #2a2a2a;
+      border-color: #444;
+      color: #fff;
+    }
+    
+    .client-type-button:hover {
       border-color: #FFB89A;
       transform: translateY(-4px);
       box-shadow: 0 6px 20px rgba(255, 184, 154, 0.15);
     }
     
-    .treatment-title {
+    body.member-theme .client-type-button:hover {
+      border-color: #FFD700;
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.15);
+    }
+    
+    .client-type-button.member-option {
+      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+      color: #FFD700;
+      border-color: #FFD700;
+    }
+    
+    .client-type-button.member-option:hover {
+      background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+      transform: translateY(-6px);
+      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
+    }
+    
+    .client-type-title {
       font-weight: 700;
       margin-bottom: 12px;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       letter-spacing: -0.02em;
     }
     
-    .treatment-desc {
+    .client-type-desc {
       font-size: 1rem;
       color: #6b7280;
       line-height: 1.4;
     }
     
-    /* Improved Injector Display */
+    body.member-theme .client-type-desc {
+      color: #999;
+    }
+    
+    .client-type-button.member-option .client-type-desc {
+      color: #FFD700;
+      opacity: 0.8;
+    }
+    
+    /* Injector Display */
     .injector-container {
       margin-top: 20px;
     }
@@ -267,13 +324,25 @@
       border-radius: 3px;
     }
     
+    body.member-theme .injector-list::-webkit-scrollbar-track {
+      background: #333;
+    }
+    
     .injector-list::-webkit-scrollbar-thumb {
       background: #d1d5db;
       border-radius: 3px;
     }
     
+    body.member-theme .injector-list::-webkit-scrollbar-thumb {
+      background: #FFD700;
+    }
+    
     .injector-list::-webkit-scrollbar-thumb:hover {
       background: #9ca3af;
+    }
+    
+    body.member-theme .injector-list::-webkit-scrollbar-thumb:hover {
+      background: #FFA500;
     }
     
     .injector-item {
@@ -290,10 +359,21 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
     
+    body.member-theme .injector-item {
+      background: #2a2a2a;
+      border-color: #444;
+      color: #fff;
+    }
+    
     .injector-item:hover {
       border-color: #FFB89A;
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(255, 184, 154, 0.12);
+    }
+    
+    body.member-theme .injector-item:hover {
+      border-color: #FFD700;
+      box-shadow: 0 4px 16px rgba(255, 215, 0, 0.12);
     }
     
     .injector-item.first-available {
@@ -302,9 +382,20 @@
       border-color: #FFB89A;
     }
     
+    body.member-theme .injector-item.first-available {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000;
+      border-color: #FFD700;
+    }
+    
     .injector-item.first-available:hover {
       background: linear-gradient(135deg, #FF9A7A 0%, #FF8A6A 100%);
       border-color: #FF9A7A;
+    }
+    
+    body.member-theme .injector-item.first-available:hover {
+      background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+      border-color: #FFA500;
     }
     
     .injector-photo {
@@ -317,6 +408,10 @@
       flex-shrink: 0;
     }
     
+    body.member-theme .injector-photo {
+      background: #444;
+    }
+    
     .injector-name {
       font-weight: 600;
       font-size: 1rem;
@@ -326,6 +421,10 @@
     
     .injector-item.first-available .injector-name {
       color: #fff;
+    }
+    
+    body.member-theme .injector-item.first-available .injector-name {
+      color: #000;
     }
     
     /* Calendar-style Time Selection */
@@ -353,9 +452,20 @@
       color: #374151;
     }
     
+    body.member-theme .calendar-nav {
+      background: #2a2a2a;
+      color: #FFD700;
+      border: 1px solid #444;
+    }
+    
     .calendar-nav:hover {
       background: #e5e7eb;
       transform: translateY(-1px);
+    }
+    
+    body.member-theme .calendar-nav:hover {
+      background: #333;
+      border-color: #FFD700;
     }
     
     .calendar-nav:disabled {
@@ -370,6 +480,10 @@
       letter-spacing: -0.02em;
     }
     
+    body.member-theme .calendar-title {
+      color: #FFD700;
+    }
+    
     .calendar-container {
       max-height: 450px;
       overflow-y: auto;
@@ -378,6 +492,11 @@
       border: 1px solid #f0f1f3;
       background: #fafbfc;
       padding: 16px;
+    }
+    
+    body.member-theme .calendar-container {
+      background: #2a2a2a;
+      border-color: #444;
     }
     
     .calendar-container::-webkit-scrollbar {
@@ -390,9 +509,17 @@
       border-radius: 4px;
     }
     
+    body.member-theme .calendar-container::-webkit-scrollbar-track {
+      background: #333;
+    }
+    
     .calendar-container::-webkit-scrollbar-thumb {
       background: #d1d5db;
       border-radius: 4px;
+    }
+    
+    body.member-theme .calendar-container::-webkit-scrollbar-thumb {
+      background: #FFD700;
     }
     
     .calendar-grid {
@@ -411,6 +538,10 @@
       padding: 12px 4px;
     }
     
+    body.member-theme .calendar-day-header {
+      color: #999;
+    }
+    
     .calendar-day {
       background: #fff;
       border: 2px solid #f0f1f3;
@@ -427,6 +558,12 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     
+    body.member-theme .calendar-day {
+      background: #333;
+      border-color: #555;
+      color: #fff;
+    }
+    
     .calendar-day:hover {
       background: #fef9f6;
       border-color: #FFB89A;
@@ -434,8 +571,19 @@
       box-shadow: 0 3px 10px rgba(255, 184, 154, 0.12);
     }
     
+    body.member-theme .calendar-day:hover {
+      background: #444;
+      border-color: #FFD700;
+      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.12);
+    }
+    
     .calendar-day.has-availability {
       background: #fff;
+      border-color: #10b981;
+    }
+    
+    body.member-theme .calendar-day.has-availability {
+      background: #333;
       border-color: #10b981;
     }
     
@@ -444,10 +592,21 @@
       border-color: #059669;
     }
     
+    body.member-theme .calendar-day.has-availability:hover {
+      background: #0a4a37;
+      border-color: #10b981;
+    }
+    
     .calendar-day.selected {
       background: linear-gradient(135deg, #FFB89A 0%, #FFA07A 100%);
       color: #fff;
       border-color: #FFB89A;
+    }
+    
+    body.member-theme .calendar-day.selected {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000;
+      border-color: #FFD700;
     }
     
     .calendar-day.disabled {
@@ -460,6 +619,11 @@
       border-color: #f0f1f3;
       transform: none;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    
+    body.member-theme .calendar-day.disabled:hover {
+      background: #333;
+      border-color: #555;
     }
     
     .day-number {
@@ -477,6 +641,10 @@
       color: rgba(255, 255, 255, 0.8);
     }
     
+    body.member-theme .calendar-day.selected .day-availability {
+      color: rgba(0, 0, 0, 0.8);
+    }
+    
     .time-slots {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -491,6 +659,11 @@
       margin-top: 20px;
     }
     
+    body.member-theme .time-slots {
+      background: #2a2a2a;
+      border-color: #444;
+    }
+    
     .time-slots::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -501,9 +674,17 @@
       border-radius: 4px;
     }
     
+    body.member-theme .time-slots::-webkit-scrollbar-track {
+      background: #333;
+    }
+    
     .time-slots::-webkit-scrollbar-thumb {
       background: #d1d5db;
       border-radius: 4px;
+    }
+    
+    body.member-theme .time-slots::-webkit-scrollbar-thumb {
+      background: #FFD700;
     }
     
     .time-slot {
@@ -519,6 +700,12 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     
+    body.member-theme .time-slot {
+      background: #333;
+      border-color: #555;
+      color: #fff;
+    }
+    
     .time-slot:hover {
       background: #fef9f6;
       border-color: #FFB89A;
@@ -526,86 +713,10 @@
       box-shadow: 0 3px 10px rgba(255, 184, 154, 0.12);
     }
     
-    /* Location Grid */
-    .location-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
-    }
-    
-    .location-button {
-      background: #fff;
-      border: 2px solid #f0f1f3;
-      color: #1a1d1f;
-      padding: 24px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      font-size: 1rem;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-    
-    .location-button:hover {
-      border-color: #FFB89A;
-      transform: translateY(-4px);
-      box-shadow: 0 6px 20px rgba(255, 184, 154, 0.15);
-    }
-    
-    /* Service Grid */
-    .service-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-top: 20px;
-      max-height: 400px;
-      overflow-y: auto;
-      padding: 4px;
-    }
-    
-    .service-button {
-      background: #fff;
-      border: 2px solid #f0f1f3;
-      color: #1a1d1f;
-      padding: 24px 28px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: left;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-    
-    .service-button:hover {
-      border-color: #FFB89A;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(255, 184, 154, 0.12);
-    }
-    
-    .service-info {
-      flex: 1;
-    }
-    
-    .service-name {
-      font-weight: 700;
-      margin-bottom: 6px;
-      font-size: 1.1rem;
-      letter-spacing: -0.02em;
-    }
-    
-    .service-duration {
-      font-size: 0.9rem;
-      color: #6b7280;
-    }
-    
-    .service-price {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #FFB89A;
+    body.member-theme .time-slot:hover {
+      background: #444;
+      border-color: #FFD700;
+      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.12);
     }
     
     /* Form Container */
@@ -615,6 +726,11 @@
       padding: 32px;
       margin-top: 20px;
       border: 1px solid #f0f1f3;
+    }
+    
+    body.member-theme .form-container {
+      background: #2a2a2a;
+      border-color: #444;
     }
     
     .form-input {
@@ -630,14 +746,29 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     
+    body.member-theme .form-input {
+      background: #333;
+      border-color: #555;
+      color: #fff;
+    }
+    
     .form-input::placeholder {
       color: #9ca3af;
+    }
+    
+    body.member-theme .form-input::placeholder {
+      color: #999;
     }
     
     .form-input:focus {
       outline: none;
       border-color: #FFB89A;
       box-shadow: 0 0 0 3px rgba(255, 184, 154, 0.1);
+    }
+    
+    body.member-theme .form-input:focus {
+      border-color: #FFD700;
+      box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
     }
     
     .form-input.error {
@@ -659,6 +790,10 @@
       margin-top: 24px;
       font-size: 1.2rem;
       letter-spacing: -0.02em;
+    }
+    
+    body.member-theme .form-section-title {
+      color: #FFD700;
     }
     
     .form-section-title:first-child {
@@ -687,10 +822,21 @@
       box-shadow: 0 3px 12px rgba(255, 184, 154, 0.2);
     }
     
+    body.member-theme .primary-button {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000;
+      box-shadow: 0 3px 12px rgba(255, 215, 0, 0.2);
+    }
+    
     .primary-button:hover {
       background: linear-gradient(135deg, #FF9A7A 0%, #FF8A6A 100%);
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(255, 154, 122, 0.25);
+    }
+    
+    body.member-theme .primary-button:hover {
+      background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+      box-shadow: 0 6px 20px rgba(255, 165, 0, 0.25);
     }
     
     .primary-button:disabled {
@@ -737,10 +883,21 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
     
+    body.member-theme .restart-button {
+      background: #2a2a2a;
+      border-color: #444;
+      color: #FFD700;
+    }
+    
     .restart-button:hover {
       border-color: #FFB89A;
       background: #fef9f6;
       transform: translateY(-2px);
+    }
+    
+    body.member-theme .restart-button:hover {
+      border-color: #FFD700;
+      background: #333;
     }
     
     .error-message {
@@ -763,6 +920,12 @@
       margin-top: 20px;
       font-size: 1rem;
       font-weight: 500;
+    }
+    
+    body.member-theme .success-message {
+      background: #0f2f1a;
+      border-color: #1f5f32;
+      color: #10b981;
     }
     
     .loading {
@@ -791,7 +954,7 @@
         padding: 20px 24px;
       }
       
-      .treatment-grid {
+      .client-type-grid {
         grid-template-columns: 1fr;
       }
       
@@ -835,19 +998,13 @@
         font-size: 0.95rem;
       }
       
-      .location-grid {
-        grid-template-columns: 1fr;
-      }
-      
       .time-slots {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         gap: 8px;
       }
       
-      .treatment-button,
-      .location-button,
-      .service-button {
-        padding: 20px;
+      .client-type-button {
+        padding: 24px;
       }
       
       .form-container {
@@ -861,184 +1018,19 @@
         font-size: 0.85rem;
       }
     }
-    
-    /* Injector Availability Styles */
-    .location-legend {
-      background: #fafbfc;
-      border-radius: 16px;
-      padding: 20px;
-      margin: 20px 0;
-      border: 1px solid #f0f1f3;
-    }
-    
-    .legend-title {
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #1a1d1f;
-      font-size: 1rem;
-      letter-spacing: -0.02em;
-    }
-    
-    .legend-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: #fff;
-      border-radius: 20px;
-      border: 2px solid #f0f1f3;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 0.9rem;
-      font-weight: 500;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-    
-    .legend-item:hover {
-      border-color: #FFB89A;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 6px rgba(255, 184, 154, 0.12);
-    }
-    
-    .legend-item.inactive {
-      opacity: 0.5;
-      background: #f8f9fa;
-    }
-    
-    .legend-color {
-      width: 14px;
-      height: 14px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-    
-    .injector-calendar-day {
-      position: relative;
-    }
-    
-    .calendar-slots {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      margin-top: 6px;
-    }
-    
-    .slot-indicator {
-      height: 4px;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .slot-indicator:hover {
-      height: 6px;
-      transform: translateY(-1px);
-    }
-    
-    .slot-tooltip {
-      position: absolute;
-      background: #1a1d1f;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      z-index: 1000;
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-    }
-    
-    .slot-tooltip.visible {
-      opacity: 1;
-      transform: translateY(-5px);
-    }
-    
-    .slot-tooltip::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 5px solid transparent;
-      border-top-color: #1a1d1f;
-    }
-    
-    .injector-time-slots {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      max-height: 300px;
-      overflow-y: auto;
-      overflow-x: auto;
-      padding: 16px;
-      background: #fafbfc;
-      border-radius: 16px;
-      border: 1px solid #f0f1f3;
-      margin-top: 20px;
-    }
-    
-    .injector-time-slot {
-      background: #fff;
-      border: 2px solid #f0f1f3;
-      border-radius: 12px;
-      padding: 14px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-    
-    .injector-time-slot:hover {
-      border-color: #FFB89A;
-      transform: translateY(-2px);
-      box-shadow: 0 3px 10px rgba(255, 184, 154, 0.12);
-    }
-    
-    .slot-time {
-      font-weight: 700;
-      font-size: 0.95rem;
-      margin-bottom: 6px;
-      letter-spacing: -0.02em;
-    }
-    
-    .slot-location {
-      font-size: 0.8rem;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-weight: 500;
-    }
-    
-    .slot-location-color {
-      width: 10px;
-      height: 10px;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
   </style>
 </head>
 <body>
   <div class="booking-widget">
-    <!-- Membership Banner -->
-    <div class="membership-banner" id="membership-banner" onclick="showMembershipInfo()">
-      <div id="membership-content">
-        <span>✨ Become a Member & Save — Unlock exclusive pricing and priority booking</span>
+    <!-- Member Info Banner (hidden by default) -->
+    <div class="member-info-banner" id="member-info-banner">
+      <div class="member-info-content" id="member-info-content">
+        <!-- Will be populated dynamically -->
       </div>
     </div>
     
     <div class="chat-header">
-      <div class="chat-title">Get Plump Booking</div>
+      <div class="chat-title">You are now Booking with Plump</div>
       <div class="chat-subtitle">Book your appointment</div>
     </div>
     
@@ -1082,82 +1074,40 @@
       }
     };
     
-    // Mock membership data - in real app, this would come from user session/API
+    // Mock membership data
     const mockMembershipData = {
-      isMember: Math.random() > 0.5, // Randomly assign for demo
-      credits: 2,
-      nextBotoxDate: '2025-08-15'
+      membershipType: Math.random() > 0.5 ? 'Injectable Club' : 'Skin Club',
+      credits: Math.floor(Math.random() * 500) + 100 // $100-$600
     };
     
     // Global state
     let conversationState = 'start';
-    let treatmentType = null;
-    let bookingFlow = null;
-    let selectedLocation = null;
-    let selectedLocationId = null;
+    let clientType = null;
+    let isMemberTheme = false;
     let selectedInjector = null;
     let selectedInjectorId = null;
+    let selectedLocation = null;
+    let selectedLocationId = null;
     let selectedService = null;
     let selectedServiceId = null;
     let selectedTime = null;
     let cartId = null;
     let availableStaff = [];
     let availableServices = [];
-    let availableTimes = [];
     let clientInfo = {};
     let currentCalendarDate = new Date();
     let calendarAvailability = {};
     let selectedDate = null;
-    let injectorLocations = []; // For injector availability view
-    let locationColors = {}; // Color mapping for locations
-    let visibleLocations = new Set(); // Which locations are currently visible
-    let injectorAvailabilityData = {}; // Availability data for injector view
     
     console.log('State initialized');
     
-    // Initialize membership banner
-    function initializeMembershipBanner() {
-      const banner = document.getElementById('membership-banner');
-      const content = document.getElementById('membership-content');
-      
-      if (mockMembershipData.isMember) {
-        const nextBotoxFormatted = new Date(mockMembershipData.nextBotoxDate).toLocaleDateString('en-US', {
-          month: 'short', 
-          day: 'numeric'
-        });
-        
-        content.innerHTML = `
-          <div class="member-credits">
-            <div class="credit-item">
-              <span class="credit-badge">${mockMembershipData.credits}</span>
-              <span>Credits Available</span>
-            </div>
-            <div class="credit-item">
-              <span>Next Botox:</span>
-              <span class="credit-badge">${nextBotoxFormatted}</span>
-            </div>
-          </div>
-        `;
-      } else {
-        content.innerHTML = 'Become a Member & Save — Unlock exclusive pricing and priority booking';
-      }
-    }
-    
-    function showMembershipInfo() {
-      if (mockMembershipData.isMember) {
-        addMessage('system', `You're a valued member with ${mockMembershipData.credits} credits available! Your next Botox appointment is recommended for ${new Date(mockMembershipData.nextBotoxDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.`);
-      } else {
-        addMessage('system', 'Join our membership program to save 20% on all treatments, earn credits with every visit, and get priority booking! Contact us at (646) 346-8809 to learn more about becoming a member.');
-      }
-    }
-    
     // Reset function to clear all selections and calendar state
     function resetBookingState() {
-      // Clear all selection state
-      selectedLocation = null;
-      selectedLocationId = null;
+      // Clear all selection state except client type and theme
       selectedInjector = null;
       selectedInjectorId = null;
+      selectedLocation = null;
+      selectedLocationId = null;
       selectedService = null;
       selectedServiceId = null;
       selectedTime = null;
@@ -1165,7 +1115,6 @@
       
       // Clear availability data
       calendarAvailability = {};
-      injectorAvailabilityData = {};
       
       // Reset calendar to current month
       currentCalendarDate = new Date();
@@ -1196,7 +1145,6 @@
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-          // Removed Authorization header - proxy will handle authentication
         },
         body: JSON.stringify({
           query: query,
@@ -1224,222 +1172,29 @@
       });
     }
     
-    // Debug function to check what fields BookingCompleteInput expects
-    function debugBookingCompleteSchema() {
-      console.log('🔍 Debugging BookingCompleteInput schema...');
+    // Initialize member theme
+    function initializeMemberTheme() {
+      const memberBanner = document.getElementById('member-info-banner');
+      const memberContent = document.getElementById('member-info-content');
       
-      const introspectionQuery = `
-        query {
-          __type(name: "BookingCompleteInput") {
-            name
-            inputFields {
-              name
-              type {
-                name
-                kind
-                ofType {
-                  name
-                  kind
-                }
-              }
-              description
-            }
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(introspectionQuery)
-        .then(data => {
-          console.log('📋 BookingCompleteInput schema:', data.__type);
-          if (data.__type && data.__type.inputFields) {
-            console.log('📋 Required fields:');
-            data.__type.inputFields.forEach(field => {
-              console.log(`  - ${field.name}: ${field.type.name || field.type.kind}${field.type.ofType ? ' of ' + field.type.ofType.name : ''}`);
-            });
-          }
-          return data.__type;
-        })
-        .catch(error => {
-          console.error('Could not fetch schema:', error);
-          return null;
-        });
-    }
-    
-    // Debug cart status before booking
-    function debugCartStatus() {
-      console.log('🔍 Debugging cart status before booking...');
-      
-      const query = `
-        query GetCart($cartId: ID!) {
-          cart(id: $cartId) {
-            id
-            state
-            expiresAt
-            clientInformation {
-              firstName
-              lastName
-              email
-              phoneNumber
-            }
-            selectedItems {
-              id
-              item {
-                name
-              }
-              selectedStaffVariant {
-                staff {
-                  firstName
-                  lastName
-                }
-              }
-            }
-            bookableTime {
-              id
-              startTime
-            }
-            errors {
-              field
-              message
-            }
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(query, { cartId: cartId })
-        .then(data => {
-          console.log('🔍 Cart debug info:', data.cart);
-          return data.cart;
-        })
-        .catch(error => {
-          console.error('🔍 Cart debug failed:', error);
-          return null;
-        });
-    }
-    
-    // FIXED: Complete booking using Boulevard's bookingComplete mutation
-    function completeAPIBooking() {
-      console.log('✅ Completing booking using bookingComplete mutation...');
-      
-      const mutation = `
-        mutation BookingComplete($input: BookingCompleteInput!) {
-          bookingComplete(input: $input) {
-            booking {
-              id
-              state
-              insertedAt
-            }
-            bookingAppointments {
-              id
-              startTime
-              endTime
-              state
-              client {
-                id
-                firstName
-                lastName
-                email
-                phoneNumber
-              }
-              location {
-                id
-                name
-              }
-              services {
-                id
-                name
-              }
-              staff {
-                id
-                firstName
-                lastName
-              }
-            }
-            bookingWarnings {
-              field
-              message
-            }
-          }
-        }
-      `;
-      
-      // Try different input structures based on common Boulevard patterns
-      const inputVariations = [
-        // Variation 1: Just cart ID
-        { cartId: cartId },
-        // Variation 2: ID field instead of cartId
-        { id: cartId },
-        // Variation 3: With payment information (null for no payment)
-        { 
-          cartId: cartId,
-          paymentMethodId: null,
-          gratuityAmount: 0
-        },
-        // Variation 4: Complete structure
-        {
-          cartId: cartId,
-          paymentMethod: null,
-          gratuity: { amount: 0 },
-          discountCodes: []
-        }
-      ];
-      
-      // Try each variation until one works
-      function tryBookingComplete(variationIndex = 0) {
-        if (variationIndex >= inputVariations.length) {
-          throw new Error('All booking completion variations failed');
-        }
+      if (isMemberTheme) {
+        document.body.classList.add('member-theme');
         
-        const input = inputVariations[variationIndex];
-        console.log(`✅ Trying booking completion variation ${variationIndex + 1}:`, input);
+        memberContent.innerHTML = `
+          <div class="member-badge">${mockMembershipData.membershipType}</div>
+          <div>Credits Available: <span class="member-badge">$${mockMembershipData.credits}</span></div>
+        `;
         
-        return makeBoulevardRequest(mutation, { input: input })
-          .then(data => {
-            console.log('✅ Booking completed successfully:', data);
-            
-            const result = data.bookingComplete;
-            
-            // Check for warnings
-            if (result.bookingWarnings && result.bookingWarnings.length > 0) {
-              console.warn('⚠️ Booking warnings:', result.bookingWarnings);
-            }
-            
-            // Verify appointments were created
-            if (result.bookingAppointments && result.bookingAppointments.length > 0) {
-              const appointment = result.bookingAppointments[0];
-              console.log('✅ Appointment created with ID:', appointment.id);
-              console.log('✅ Appointment details:', appointment);
-              
-              return {
-                success: true,
-                bookingId: result.booking.id,
-                appointmentId: appointment.id,
-                appointment: appointment,
-                warnings: result.bookingWarnings
-              };
-            } else {
-              throw new Error('No appointments were created in the booking');
-            }
-          })
-          .catch(error => {
-            console.error(`❌ Booking variation ${variationIndex + 1} failed:`, error);
-            
-            // If this variation failed, try the next one
-            if (variationIndex < inputVariations.length - 1) {
-              console.log(`⏭️ Trying next variation...`);
-              return tryBookingComplete(variationIndex + 1);
-            } else {
-              throw error;
-            }
-          });
+        memberBanner.style.display = 'block';
+      } else {
+        document.body.classList.remove('member-theme');
+        memberBanner.style.display = 'none';
       }
-      
-      return tryBookingComplete();
     }
     
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, starting conversation');
-      initializeMembershipBanner();
       startConversation();
     });
     
@@ -1451,19 +1206,18 @@
       
       // Reset state
       resetBookingState();
-      treatmentType = null;
-      bookingFlow = null;
+      clientType = null;
+      isMemberTheme = false;
       availableStaff = [];
       availableServices = [];
-      availableTimes = [];
       clientInfo = {};
-      injectorLocations = [];
-      locationColors = {};
-      visibleLocations = new Set();
       
-      addMessage('system', "Hi! Welcome to Get Plump. I'll help you book your appointment.", function() {
-        addMessage('system', "What type of treatment are you interested in?", function() {
-          showTreatmentTypeSelection();
+      // Reset theme
+      initializeMemberTheme();
+      
+      addMessage('system', "Hi! Welcome to Plump. I'll help you book your appointment.", function() {
+        addMessage('system', "First, let me know what type of client you are:", function() {
+          showClientTypeSelection();
         });
       });
     }
@@ -1538,169 +1292,92 @@
       }, 1200);
     }
     
-    function showTreatmentTypeSelection() {
-      console.log('Showing treatment type selection');
+    function showClientTypeSelection() {
+      console.log('Showing client type selection');
       const container = document.getElementById('messages');
-      const treatmentMessage = document.createElement('div');
-      treatmentMessage.className = 'message system';
+      const clientTypeMessage = document.createElement('div');
+      clientTypeMessage.className = 'message system';
       
       const bubble = document.createElement('div');
       bubble.className = 'message-bubble';
       
       const grid = document.createElement('div');
-      grid.className = 'treatment-grid';
-      grid.style.gridTemplateColumns = '1fr'; // Stack vertically for 3 options
+      grid.className = 'client-type-grid';
       
-      // Injectable button
-      const injectableButton = document.createElement('button');
-      injectableButton.className = 'treatment-button';
-      injectableButton.onclick = () => selectTreatmentType('injectable');
+      // Returning Client button
+      const returningButton = document.createElement('button');
+      returningButton.className = 'client-type-button';
+      returningButton.onclick = () => selectClientType('returning');
       
-      const injectableTitle = document.createElement('div');
-      injectableTitle.className = 'treatment-title';
-      injectableTitle.textContent = 'Injectable Treatments';
+      const returningTitle = document.createElement('div');
+      returningTitle.className = 'client-type-title';
+      returningTitle.textContent = 'Returning Client';
       
-      const injectableDesc = document.createElement('div');
-      injectableDesc.className = 'treatment-desc';
-      injectableDesc.textContent = 'Botox, fillers, and other injectable services';
+      const returningDesc = document.createElement('div');
+      returningDesc.className = 'client-type-desc';
+      returningDesc.textContent = 'Welcome back! Continue with your booking';
       
-      injectableButton.appendChild(injectableTitle);
-      injectableButton.appendChild(injectableDesc);
+      returningButton.appendChild(returningTitle);
+      returningButton.appendChild(returningDesc);
       
-      // Skin treatments button
-      const skinButton = document.createElement('button');
-      skinButton.className = 'treatment-button';
-      skinButton.onclick = () => selectTreatmentType('skin');
+      // New Client button
+      const newButton = document.createElement('button');
+      newButton.className = 'client-type-button';
+      newButton.onclick = () => selectClientType('new');
       
-      const skinTitle = document.createElement('div');
-      skinTitle.className = 'treatment-title';
-      skinTitle.textContent = 'Skin Treatments';
+      const newTitle = document.createElement('div');
+      newTitle.className = 'client-type-title';
+      newTitle.textContent = 'New Client';
       
-      const skinDesc = document.createElement('div');
-      skinDesc.className = 'treatment-desc';
-      skinDesc.textContent = 'Laser, microneedling, and skincare services';
+      const newDesc = document.createElement('div');
+      newDesc.className = 'client-type-desc';
+      newDesc.textContent = 'First time at Plump? Let\'s get you started';
       
-      skinButton.appendChild(skinTitle);
-      skinButton.appendChild(skinDesc);
+      newButton.appendChild(newTitle);
+      newButton.appendChild(newDesc);
       
-      // Injector availability button
-      const injectorAvailButton = document.createElement('button');
-      injectorAvailButton.className = 'treatment-button';
-      injectorAvailButton.onclick = () => selectTreatmentType('injector-availability');
+      // Member button
+      const memberButton = document.createElement('button');
+      memberButton.className = 'client-type-button member-option';
+      memberButton.onclick = () => selectClientType('member');
       
-      const injectorAvailTitle = document.createElement('div');
-      injectorAvailTitle.className = 'treatment-title';
-      injectorAvailTitle.textContent = 'See a Specific Injector\'s Availability';
+      const memberTitle = document.createElement('div');
+      memberTitle.className = 'client-type-title';
+      memberTitle.textContent = 'Member';
       
-      const injectorAvailDesc = document.createElement('div');
-      injectorAvailDesc.className = 'treatment-desc';
-      injectorAvailDesc.textContent = 'View open slots for your preferred injector across all locations';
+      const memberDesc = document.createElement('div');
+      memberDesc.className = 'client-type-desc';
+      memberDesc.textContent = 'Exclusive access and priority booking';
       
-      injectorAvailButton.appendChild(injectorAvailTitle);
-      injectorAvailButton.appendChild(injectorAvailDesc);
+      memberButton.appendChild(memberTitle);
+      memberButton.appendChild(memberDesc);
       
-      grid.appendChild(injectableButton);
-      grid.appendChild(skinButton);
-      grid.appendChild(injectorAvailButton);
+      grid.appendChild(returningButton);
+      grid.appendChild(newButton);
+      grid.appendChild(memberButton);
       
       bubble.appendChild(grid);
-      treatmentMessage.appendChild(bubble);
-      container.appendChild(treatmentMessage);
+      clientTypeMessage.appendChild(bubble);
+      container.appendChild(clientTypeMessage);
       scrollToBottom();
     }
     
-    function selectTreatmentType(type) {
-      // Reset state when changing treatment type
-      resetBookingState();
+    function selectClientType(type) {
+      clientType = type;
       
-      treatmentType = type;
-      
-      if (type === 'injectable') {
-        addMessage('user', 'Injectable Treatments');
-        addMessage('system', 'Great! For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
-          showInjectableBookingFlow();
-        });
-      } else if (type === 'skin') {
-        addMessage('user', 'Skin Treatments');
-        addMessage('system', 'Perfect! Please select your preferred location:', function() {
-          showLocationSelection();
-        });
-      } else if (type === 'injector-availability') {
-        addMessage('user', 'See a Specific Injector\'s Availability');
-        addMessage('system', 'Perfect! Let me load our team of injectors and their availability...', function() {
-          loadInjectorsForAvailability();
-        });
+      // Set member theme if member is selected
+      if (type === 'member') {
+        isMemberTheme = true;
+        initializeMemberTheme();
       }
-    }
-    
-    function showInjectableBookingFlow() {
-      const container = document.getElementById('messages');
-      const flowMessage = document.createElement('div');
-      flowMessage.className = 'message system';
       
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
+      let clientTypeText = type === 'returning' ? 'Returning Client' : 
+                          type === 'new' ? 'New Client' : 'Member';
       
-      const grid = document.createElement('div');
-      grid.className = 'treatment-grid';
-      
-      // Book by injector
-      const injectorButton = document.createElement('button');
-      injectorButton.className = 'treatment-button';
-      injectorButton.onclick = () => selectBookingFlow('by-injector');
-      
-      const injectorTitle = document.createElement('div');
-      injectorTitle.className = 'treatment-title';
-      injectorTitle.textContent = 'Book by Injector';
-      
-      const injectorDesc = document.createElement('div');
-      injectorDesc.className = 'treatment-desc';
-      injectorDesc.textContent = 'Choose your preferred injector first';
-      
-      injectorButton.appendChild(injectorTitle);
-      injectorButton.appendChild(injectorDesc);
-      
-      // Book by location
-      const locationButton = document.createElement('button');
-      locationButton.className = 'treatment-button';
-      locationButton.onclick = () => selectBookingFlow('by-location');
-      
-      const locationTitle = document.createElement('div');
-      locationTitle.className = 'treatment-title';
-      locationTitle.textContent = 'Book by Location';
-      
-      const locationDesc = document.createElement('div');
-      locationDesc.className = 'treatment-desc';
-      locationDesc.textContent = 'Choose your preferred location first';
-      
-      locationButton.appendChild(locationTitle);
-      locationButton.appendChild(locationDesc);
-      
-      grid.appendChild(injectorButton);
-      grid.appendChild(locationButton);
-      
-      bubble.appendChild(grid);
-      flowMessage.appendChild(bubble);
-      container.appendChild(flowMessage);
-      scrollToBottom();
-    }
-    
-    function selectBookingFlow(flow) {
-      // Reset state when changing booking flow
-      resetBookingState();
-      
-      bookingFlow = flow;
-      addMessage('user', flow === 'by-injector' ? 'Book by Injector' : 'Book by Location');
-      
-      if (flow === 'by-injector') {
-        addMessage('system', 'Let me show you our available injectors...', function() {
-          loadInjectors();
-        });
-      } else {
-        addMessage('system', 'Please select your preferred location:', function() {
-          showLocationSelection();
-        });
-      }
+      addMessage('user', clientTypeText);
+      addMessage('system', 'Perfect! Let me show you our team of injectors...', function() {
+        loadInjectors();
+      });
     }
     
     function loadInjectors() {
@@ -2024,874 +1701,6 @@
       console.log('🎨 Injector pill display complete');
     }
     
-    // NEW: Load injectors specifically for availability view
-    function loadInjectorsForAvailability() {
-      console.log('🔍 Loading injectors for availability view...');
-      
-      // Show loading state
-      const container = document.getElementById('messages');
-      const loadingMessage = document.createElement('div');
-      loadingMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      bubble.textContent = 'Loading our team of injectors...';
-      
-      loadingMessage.appendChild(bubble);
-      container.appendChild(loadingMessage);
-      scrollToBottom();
-      
-      // Get all locations and their staff
-      const locationEntries = Object.entries(LOCATIONS_DATA);
-      console.log('🔍 Loading staff from all locations for availability view');
-      
-      const allStaffPromises = locationEntries.map(([locationName, locationData]) => {
-        const locationId = locationData.locationId.indexOf('urn:blvd:Location:') === 0 ? 
-          locationData.locationId : 'urn:blvd:Location:' + locationData.locationId;
-        
-        const query = `
-          mutation CreateTempCart($locationId: ID!) {
-            createCart(input: { locationId: $locationId }) {
-              cart {
-                id
-                availableCategories {
-                  name
-                  availableItems {
-                    id
-                    name
-                    ... on CartAvailableBookableItem {
-                      staffVariants {
-                        id
-                        staff {
-                          id
-                          firstName
-                          lastName
-                          nickname
-                          avatar
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `;
-        
-        return makeBoulevardRequest(query, { locationId: locationId })
-          .then(data => ({
-            locationName: locationName,
-            locationId: locationId,
-            cart: data.createCart.cart
-          }))
-          .catch(error => {
-            console.error('🔍 Failed to load from location:', locationName, error);
-            return { locationName: locationName, locationId: locationId, cart: null };
-          });
-      });
-      
-      Promise.all(allStaffPromises)
-        .then(responses => {
-          const staffMap = new Map();
-          
-          responses.forEach(response => {
-            if (!response.cart) return;
-            
-            const { locationName, cart } = response;
-            
-            if (cart.availableCategories) {
-              cart.availableCategories.forEach(category => {
-                if (category.availableItems) {
-                  category.availableItems.forEach(item => {
-                    if (item.staffVariants && item.staffVariants.length > 0) {
-                      item.staffVariants.forEach(variant => {
-                        if (variant.staff) {
-                          if (!staffMap.has(variant.staff.id)) {
-                            staffMap.set(variant.staff.id, {
-                              id: variant.staff.id,
-                              firstName: variant.staff.firstName,
-                              lastName: variant.staff.lastName,
-                              nickname: variant.staff.nickname,
-                              avatar: variant.staff.avatar ? { url: variant.staff.avatar } : null,
-                              locations: [locationName]
-                            });
-                          } else {
-                            const staff = staffMap.get(variant.staff.id);
-                            if (!staff.locations.includes(locationName)) {
-                              staff.locations.push(locationName);
-                            }
-                          }
-                        }
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          });
-          
-          const staffList = Array.from(staffMap.values());
-          
-          if (staffList.length > 0) {
-            console.log('✅ Successfully loaded staff for availability view:', staffList);
-            availableStaff = staffList;
-            assignLocationColors(staffList);
-            showInjectorsForAvailability();
-          } else {
-            console.log('❌ No staff found, using mock data');
-            loadMockStaffForAvailability();
-          }
-        })
-        .catch(error => {
-          console.error('❌ Failed to load staff:', error);
-          loadMockStaffForAvailability();
-        });
-    }
-    
-    function loadMockStaffForAvailability() {
-      const mockStaff = [
-        {
-          id: 'staff1',
-          firstName: 'Sarah',
-          lastName: 'Johnson',
-          avatar: null,
-          locations: ['West Village', 'SoHo']
-        },
-        {
-          id: 'staff2',
-          firstName: 'Michael',
-          lastName: 'Chen',
-          avatar: null,
-          locations: ['Tribeca', 'Williamsburg']
-        },
-        {
-          id: 'staff3',
-          firstName: 'Emily',
-          lastName: 'Rodriguez',
-          avatar: null,
-          locations: ['Hoboken', 'Uptown']
-        },
-        {
-          id: 'staff4',
-          firstName: 'David',
-          lastName: 'Thompson',
-          avatar: null,
-          locations: ['Miami', 'West Village']
-        },
-        {
-          id: 'staff5',
-          firstName: 'Jessica',
-          lastName: 'Martinez',
-          avatar: null,
-          locations: ['SoHo', 'Tribeca']
-        }
-      ];
-      
-      availableStaff = mockStaff;
-      assignLocationColors(mockStaff);
-      showInjectorsForAvailability();
-    }
-    
-    function assignLocationColors(staffList) {
-      const colors = ['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#5856D6', '#AF52DE', '#FF2D92', '#64D2FF'];
-      const allLocations = new Set();
-      
-      staffList.forEach(staff => {
-        staff.locations.forEach(location => allLocations.add(location));
-      });
-      
-      const locationArray = Array.from(allLocations);
-      locationColors = {};
-      
-      locationArray.forEach((location, index) => {
-        locationColors[location] = colors[index % colors.length];
-      });
-      
-      console.log('🎨 Assigned location colors:', locationColors);
-    }
-    
-    function showInjectorsForAvailability() {
-      console.log('🎨 Showing injectors for availability view');
-      
-      // Remove loading message
-      const messages = document.querySelectorAll('.message');
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && lastMessage.textContent.includes('Loading our team')) {
-        lastMessage.remove();
-      }
-      
-      const container = document.getElementById('messages');
-      const injectorsMessage = document.createElement('div');
-      injectorsMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      bubble.innerHTML = 'Select an injector to view their availability across all locations:';
-      
-      const injectorContainer = document.createElement('div');
-      injectorContainer.className = 'injector-container';
-      
-      const injectorList = document.createElement('div');
-      injectorList.className = 'injector-list';
-      
-      // Show individual injectors
-      availableStaff.forEach((staff, index) => {
-        const item = document.createElement('div');
-        item.className = 'injector-item';
-        item.onclick = () => selectInjectorForAvailability(staff);
-        
-        const photo = document.createElement('div');
-        photo.className = 'injector-photo';
-        if (staff.avatar && staff.avatar.url) {
-          photo.style.backgroundImage = `url(${staff.avatar.url})`;
-        }
-        
-        const name = document.createElement('div');
-        name.className = 'injector-name';
-        name.textContent = `${staff.firstName} ${staff.lastName}`;
-        
-        // Add location info
-        const locations = document.createElement('div');
-        locations.style.fontSize = '0.8rem';
-        locations.style.color = '#86868b';
-        locations.style.marginTop = '4px';
-        locations.textContent = staff.locations.join(', ');
-        
-        const info = document.createElement('div');
-        info.style.flex = '1';
-        info.appendChild(name);
-        info.appendChild(locations);
-        
-        item.appendChild(photo);
-        item.appendChild(info);
-        
-        injectorList.appendChild(item);
-      });
-      
-      injectorContainer.appendChild(injectorList);
-      bubble.appendChild(injectorContainer);
-      
-      injectorsMessage.appendChild(bubble);
-      container.appendChild(injectorsMessage);
-      scrollToBottom();
-    }
-    
-    function selectInjectorForAvailability(staff) {
-      resetBookingState(); // Reset when selecting injector
-      
-      selectedInjector = `${staff.firstName} ${staff.lastName}`;
-      selectedInjectorId = staff.id;
-      injectorLocations = staff.locations;
-      
-      // Initialize all locations as visible
-      visibleLocations = new Set(staff.locations);
-      
-      addMessage('user', selectedInjector);
-      addMessage('system', `Perfect! Loading ${selectedInjector}'s availability across all locations...`, function() {
-        loadInjectorAvailabilityAcrossLocations();
-      });
-    }
-    
-    function loadInjectorAvailabilityAcrossLocations() {
-      console.log('🔍 Loading availability for injector across all locations');
-      
-      const promises = injectorLocations.map(locationName => {
-        return loadInjectorAvailabilityForLocation(locationName);
-      });
-      
-      Promise.all(promises)
-        .then(() => {
-          console.log('✅ Loaded availability for all locations');
-          showInjectorAvailabilityCalendar();
-        })
-        .catch(error => {
-          console.error('❌ Failed to load availability:', error);
-          showErrorMessage('Unable to load availability. Please try again or contact us.');
-        });
-    }
-    
-    function loadInjectorAvailabilityForLocation(locationName) {
-      const locationData = LOCATIONS_DATA[locationName];
-      if (!locationData) {
-        console.error('Location not found:', locationName);
-        return Promise.resolve();
-      }
-      
-      const locationId = locationData.locationId.indexOf('urn:blvd:Location:') === 0 ? 
-        locationData.locationId : 'urn:blvd:Location:' + locationData.locationId;
-      
-      console.log(`🔍 Loading availability for ${locationName}`);
-      
-      // Create a temporary cart for this location
-      const createCartQuery = `
-        mutation CreateTempCart($locationId: ID!) {
-          createCart(input: { locationId: $locationId }) {
-            cart {
-              id
-              availableCategories {
-                availableItems {
-                  id
-                  name
-                  ... on CartAvailableBookableItem {
-                    staffVariants {
-                      id
-                      staff {
-                        id
-                        firstName
-                        lastName
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(createCartQuery, { locationId: locationId })
-        .then(data => {
-          const cart = data.createCart.cart;
-          
-          // Find a service that this injector can perform
-          let selectedServiceId = null;
-          let selectedStaffVariantId = null;
-          
-          for (const category of cart.availableCategories) {
-            for (const item of category.availableItems) {
-              if (item.staffVariants) {
-                const staffVariant = item.staffVariants.find(variant => 
-                  variant.staff && variant.staff.id === selectedInjectorId
-                );
-                if (staffVariant) {
-                  selectedServiceId = item.id;
-                  selectedStaffVariantId = staffVariant.id;
-                  break;
-                }
-              }
-            }
-            if (selectedServiceId) break;
-          }
-          
-          if (!selectedServiceId) {
-            console.log(`No services found for injector at ${locationName}`);
-            return;
-          }
-          
-          // Add service to cart
-          const addServiceQuery = `
-            mutation AddCartItem($cartId: ID!, $itemId: ID!, $itemStaffVariantId: ID!) {
-              addCartSelectedBookableItem(input: {
-                id: $cartId,
-                itemId: $itemId,
-                itemStaffVariantId: $itemStaffVariantId
-              }) {
-                cart {
-                  id
-                }
-              }
-            }
-          `;
-          
-          return makeBoulevardRequest(addServiceQuery, {
-            cartId: cart.id,
-            itemId: selectedServiceId,
-            itemStaffVariantId: selectedStaffVariantId
-          }).then(() => {
-            // Load availability for the next 30 days
-            const promises = [];
-            const today = new Date();
-            
-            for (let i = 0; i < 30; i++) {
-              const date = new Date(today);
-              date.setDate(date.getDate() + i);
-              promises.push(loadAvailabilityForInjectorDate(cart.id, date, locationName));
-            }
-            
-            return Promise.all(promises);
-          });
-        })
-        .catch(error => {
-          console.error(`Failed to load availability for ${locationName}:`, error);
-        });
-    }
-    
-    function loadAvailabilityForInjectorDate(cartId, date, locationName) {
-      const dateStr = date.toISOString().split('T')[0];
-      
-      const query = `
-        query GetCartBookableTimes($cartId: ID!, $searchDate: Date!) {
-          cartBookableTimes(
-            id: $cartId,
-            searchDate: $searchDate,
-            tz: "America/New_York"
-          ) {
-            id
-            startTime
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(query, { 
-        cartId: cartId, 
-        searchDate: dateStr 
-      })
-        .then(data => {
-          const times = data.cartBookableTimes || [];
-          
-          if (!injectorAvailabilityData[dateStr]) {
-            injectorAvailabilityData[dateStr] = {};
-          }
-          
-          injectorAvailabilityData[dateStr][locationName] = times;
-          return times;
-        })
-        .catch(error => {
-          console.error('Failed to load availability for', dateStr, locationName, error);
-          if (!injectorAvailabilityData[dateStr]) {
-            injectorAvailabilityData[dateStr] = {};
-          }
-          injectorAvailabilityData[dateStr][locationName] = [];
-          return [];
-        });
-    }
-    
-    function showInjectorAvailabilityCalendar() {
-      const container = document.getElementById('messages');
-      const calendarMessage = document.createElement('div');
-      calendarMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      
-      // Location legend and toggle
-      const legend = document.createElement('div');
-      legend.className = 'location-legend';
-      
-      const legendTitle = document.createElement('div');
-      legendTitle.className = 'legend-title';
-      legendTitle.textContent = 'Locations (click to toggle):';
-      
-      const legendItems = document.createElement('div');
-      legendItems.className = 'legend-items';
-      
-      injectorLocations.forEach(locationName => {
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        if (!visibleLocations.has(locationName)) {
-          legendItem.classList.add('inactive');
-        }
-        
-        legendItem.onclick = () => toggleLocationVisibility(locationName);
-        
-        const colorDiv = document.createElement('div');
-        colorDiv.className = 'legend-color';
-        colorDiv.style.backgroundColor = locationColors[locationName];
-        
-        const nameDiv = document.createElement('div');
-        nameDiv.textContent = locationName;
-        
-        legendItem.appendChild(colorDiv);
-        legendItem.appendChild(nameDiv);
-        legendItems.appendChild(legendItem);
-      });
-      
-      legend.appendChild(legendTitle);
-      legend.appendChild(legendItems);
-      
-      // Calendar container
-      const availabilityContainer = document.createElement('div');
-      availabilityContainer.className = 'availability-container';
-      availabilityContainer.id = 'injector-availability-container';
-      
-      bubble.appendChild(legend);
-      bubble.appendChild(availabilityContainer);
-      
-      calendarMessage.appendChild(bubble);
-      container.appendChild(calendarMessage);
-      scrollToBottom();
-      
-      renderInjectorAvailabilityCalendar();
-    }
-    
-    function toggleLocationVisibility(locationName) {
-      if (visibleLocations.has(locationName)) {
-        visibleLocations.delete(locationName);
-      } else {
-        visibleLocations.add(locationName);
-      }
-      
-      // Update legend items
-      const legendItems = document.querySelectorAll('.legend-item');
-      legendItems.forEach(item => {
-        const locationText = item.textContent;
-        if (locationText === locationName) {
-          if (visibleLocations.has(locationName)) {
-            item.classList.remove('inactive');
-          } else {
-            item.classList.add('inactive');
-          }
-        }
-      });
-      
-      // Re-render calendar
-      renderInjectorAvailabilityCalendar();
-    }
-    
-    function renderInjectorAvailabilityCalendar() {
-      const container = document.getElementById('injector-availability-container');
-      container.innerHTML = '';
-      
-      // Calendar header
-      const calendarHeader = document.createElement('div');
-      calendarHeader.className = 'calendar-header';
-      
-      const calendarTitle = document.createElement('div');
-      calendarTitle.className = 'calendar-title';
-      calendarTitle.textContent = `${selectedInjector}'s Availability`;
-      
-      calendarHeader.appendChild(calendarTitle);
-      
-      // Calendar container with scroll
-      const calendarContainer = document.createElement('div');
-      calendarContainer.className = 'calendar-container';
-      
-      // Calendar grid
-      const calendarGrid = document.createElement('div');
-      calendarGrid.className = 'calendar-grid';
-      
-      // Day headers
-      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      dayHeaders.forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'calendar-day-header';
-        dayHeader.textContent = day;
-        calendarGrid.appendChild(dayHeader);
-      });
-      
-      // Generate calendar for current month
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      
-      // Add empty cells for days before the first day of the month
-      for (let i = 0; i < firstDay.getDay(); i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day disabled';
-        calendarGrid.appendChild(emptyDay);
-      }
-      
-      // Add days of the month
-      for (let day = 1; day <= lastDay.getDate(); day++) {
-        const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split('T')[0];
-        const dayElement = document.createElement('div');
-        dayElement.className = 'calendar-day injector-calendar-day';
-        
-        // Check if day is in the past
-        if (date < today) {
-          dayElement.classList.add('disabled');
-        } else {
-          dayElement.onclick = () => selectInjectorDate(date);
-        }
-        
-        const dayNumber = document.createElement('div');
-        dayNumber.className = 'day-number';
-        dayNumber.textContent = day;
-        
-        const slotsContainer = document.createElement('div');
-        slotsContainer.className = 'calendar-slots';
-        
-        // Add slot indicators for visible locations
-        const dayData = injectorAvailabilityData[dateStr];
-        if (dayData) {
-          let hasSlots = false;
-          
-          Object.keys(dayData).forEach(locationName => {
-            if (!visibleLocations.has(locationName)) return;
-            
-            const slots = dayData[locationName];
-            if (slots && slots.length > 0) {
-              hasSlots = true;
-              
-              // Show up to 3 slot indicators per location
-              const slotsToShow = Math.min(3, slots.length);
-              for (let i = 0; i < slotsToShow; i++) {
-                const slotIndicator = document.createElement('div');
-                slotIndicator.className = 'slot-indicator';
-                slotIndicator.style.backgroundColor = locationColors[locationName];
-                slotIndicator.title = `${locationName} - ${slots.length} slot${slots.length > 1 ? 's' : ''}`;
-                slotsContainer.appendChild(slotIndicator);
-              }
-            }
-          });
-          
-          if (hasSlots) {
-            dayElement.classList.add('has-availability');
-          }
-        }
-        
-        dayElement.appendChild(dayNumber);
-        dayElement.appendChild(slotsContainer);
-        calendarGrid.appendChild(dayElement);
-      }
-      
-      calendarContainer.appendChild(calendarGrid);
-      
-      container.appendChild(calendarHeader);
-      container.appendChild(calendarContainer);
-      
-      // Time slots container (initially hidden)
-      const timeSlotsContainer = document.createElement('div');
-      timeSlotsContainer.className = 'injector-time-slots';
-      timeSlotsContainer.id = 'injector-time-slots-container';
-      timeSlotsContainer.style.display = 'none';
-      container.appendChild(timeSlotsContainer);
-    }
-    
-    function selectInjectorDate(date) {
-      selectedDate = date;
-      const dateStr = date.toISOString().split('T')[0];
-      
-      // Update selected state in calendar
-      document.querySelectorAll('.injector-calendar-day').forEach(day => {
-        day.classList.remove('selected');
-      });
-      
-      // Find and select the clicked day
-      const dayElements = document.querySelectorAll('.injector-calendar-day');
-      dayElements.forEach(dayElement => {
-        const dayNumber = dayElement.querySelector('.day-number');
-        if (dayNumber && parseInt(dayNumber.textContent) === date.getDate()) {
-          dayElement.classList.add('selected');
-        }
-      });
-      
-      showInjectorTimeSlotsForDate(date);
-    }
-    
-    function showInjectorTimeSlotsForDate(date) {
-      const dateStr = date.toISOString().split('T')[0];
-      const dayData = injectorAvailabilityData[dateStr];
-      
-      const timeSlotsContainer = document.getElementById('injector-time-slots-container');
-      timeSlotsContainer.innerHTML = '';
-      
-      if (!dayData) {
-        timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No availability data for this date</p>';
-        timeSlotsContainer.style.display = 'block';
-        return;
-      }
-      
-      const allSlots = [];
-      
-      // Collect all slots from visible locations
-      Object.keys(dayData).forEach(locationName => {
-        if (!visibleLocations.has(locationName)) return;
-        
-        const slots = dayData[locationName] || [];
-        slots.forEach(slot => {
-          allSlots.push({
-            ...slot,
-            locationName: locationName,
-            color: locationColors[locationName]
-          });
-        });
-      });
-      
-      if (allSlots.length === 0) {
-        timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No available times for this date</p>';
-      } else {
-        // Sort slots by time
-        allSlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-        
-        allSlots.forEach(slot => {
-          const startTime = new Date(slot.startTime);
-          const timeStr = startTime.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const timeSlot = document.createElement('div');
-          timeSlot.className = 'injector-time-slot';
-          timeSlot.onclick = () => selectInjectorTimeSlot(slot, timeStr, date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-          }));
-          
-          const timeDiv = document.createElement('div');
-          timeDiv.className = 'slot-time';
-          timeDiv.textContent = timeStr;
-          
-          const locationDiv = document.createElement('div');
-          locationDiv.className = 'slot-location';
-          
-          const colorDiv = document.createElement('div');
-          colorDiv.className = 'slot-location-color';
-          colorDiv.style.backgroundColor = slot.color;
-          
-          const nameDiv = document.createElement('div');
-          nameDiv.textContent = slot.locationName;
-          
-          locationDiv.appendChild(colorDiv);
-          locationDiv.appendChild(nameDiv);
-          
-          timeSlot.appendChild(timeDiv);
-          timeSlot.appendChild(locationDiv);
-          
-          timeSlotsContainer.appendChild(timeSlot);
-        });
-      }
-      
-      timeSlotsContainer.style.display = 'block';
-      scrollToBottom();
-    }
-    
-    function selectInjectorTimeSlot(slot, timeStr, dateStr) {
-      selectedTime = { id: slot.id, time: timeStr, date: dateStr, startTime: slot.startTime };
-      selectedLocation = slot.locationName;
-      selectedLocationId = LOCATIONS_DATA[slot.locationName].locationId;
-      
-      addMessage('user', `${dateStr} at ${timeStr} - ${slot.locationName}`);
-      addMessage('system', `Perfect! I've noted your appointment with ${selectedInjector} at ${slot.locationName} on ${dateStr} at ${timeStr}. Let me prepare your booking...`);
-      
-      // Now we need to create a proper cart for this location and complete the booking
-      createCartForInjectorBooking();
-    }
-    
-    function createCartForInjectorBooking() {
-      console.log('🎯 Creating cart for injector booking at', selectedLocation);
-      
-      const formattedLocationId = selectedLocationId.indexOf('urn:blvd:Location:') === 0 ? 
-        selectedLocationId : 'urn:blvd:Location:' + selectedLocationId;
-      
-      const query = `
-        mutation CreateCart($locationId: ID!) {
-          createCart(input: { locationId: $locationId }) {
-            cart {
-              id
-              availableCategories {
-                availableItems {
-                  id
-                  name
-                  ... on CartAvailableBookableItem {
-                    staffVariants {
-                      id
-                      staff {
-                        id
-                        firstName
-                        lastName
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-      
-      makeBoulevardRequest(query, { locationId: formattedLocationId })
-        .then(data => {
-          const cart = data.createCart.cart;
-          cartId = cart.id;
-          
-          // Find a service this injector can perform
-          let foundService = false;
-          for (const category of cart.availableCategories) {
-            for (const item of category.availableItems) {
-              if (item.staffVariants) {
-                const staffVariant = item.staffVariants.find(variant => 
-                  variant.staff && variant.staff.id === selectedInjectorId
-                );
-                if (staffVariant) {
-                  // Use the first available service
-                  selectedService = item.name;
-                  selectedServiceId = item.id;
-                  
-                  // Add service to cart and continue
-                  return addInjectorServiceToCart(staffVariant.id);
-                }
-              }
-            }
-          }
-          
-          if (!foundService) {
-            throw new Error('No services found for this injector at this location');
-          }
-        })
-        .catch(error => {
-          console.error('Failed to create cart for injector booking:', error);
-          showErrorMessage('Unable to prepare booking. Please try again or contact us.');
-        });
-    }
-    
-    function addInjectorServiceToCart(staffVariantId) {
-      const mutation = `
-        mutation AddCartItem($cartId: ID!, $itemId: ID!, $itemStaffVariantId: ID!) {
-          addCartSelectedBookableItem(input: {
-            id: $cartId,
-            itemId: $itemId,
-            itemStaffVariantId: $itemStaffVariantId
-          }) {
-            cart {
-              id
-            }
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(mutation, {
-        cartId: cartId,
-        itemId: selectedServiceId,
-        itemStaffVariantId: staffVariantId
-      })
-        .then(() => {
-          console.log('Service added to cart for injector booking');
-          reserveInjectorTimeSlot();
-        })
-        .catch(error => {
-          console.error('Failed to add service for injector booking:', error);
-          showErrorMessage('Unable to add service. Please try again or contact us.');
-        });
-    }
-    
-    function reserveInjectorTimeSlot() {
-      console.log('🔒 Reserving injector time slot:', selectedTime.id);
-      
-      const mutation = `
-        mutation ReserveCartBookableItems($cartId: ID!, $bookableTimeId: ID!) {
-          reserveCartBookableItems(input: {
-            id: $cartId,
-            bookableTimeId: $bookableTimeId
-          }) {
-            cart {
-              id
-            }
-          }
-        }
-      `;
-      
-      makeBoulevardRequest(mutation, {
-        cartId: cartId,
-        bookableTimeId: selectedTime.id
-      })
-        .then(data => {
-          console.log('✅ Injector time slot reserved successfully');
-          addMessage('system', `Excellent! I've reserved your time slot with ${selectedInjector}. Now I need your contact information to complete your booking...`);
-          showClientInfoForm();
-        })
-        .catch(error => {
-          console.error('❌ Failed to reserve injector time slot:', error);
-          addMessage('system', `I'm sorry, that time slot is no longer available. Please choose a different time.`);
-          showErrorMessage('Time slot is no longer available. Please select a different time.');
-        });
-    }
-    
     function selectInjector(injectorId, injectorName) {
       resetBookingState(); // Reset when selecting injector
       
@@ -2899,6 +1708,7 @@
       selectedInjectorId = injectorId;
       addMessage('user', injectorName);
       
+      // Show locations for the selected injector
       addMessage('system', 'Perfect! Now please select your preferred location:', function() {
         showLocationSelection();
       });
@@ -2913,7 +1723,7 @@
       bubble.className = 'message-bubble';
       
       const grid = document.createElement('div');
-      grid.className = 'location-grid';
+      grid.className = 'client-type-grid'; // Reuse the same styling
       
       let availableLocations = Object.keys(LOCATIONS_DATA);
       
@@ -2930,9 +1740,19 @@
       
       availableLocations.forEach(locationName => {
         const button = document.createElement('button');
-        button.className = 'location-button';
-        button.textContent = locationName;
+        button.className = 'client-type-button'; // Reuse client type button styling
         button.onclick = () => selectLocation(locationName);
+        
+        const title = document.createElement('div');
+        title.className = 'client-type-title';
+        title.textContent = locationName;
+        
+        const desc = document.createElement('div');
+        desc.className = 'client-type-desc';
+        desc.textContent = 'Select this location';
+        
+        button.appendChild(title);
+        button.appendChild(desc);
         grid.appendChild(button);
       });
       
@@ -2943,17 +1763,15 @@
     }
     
     function selectLocation(location) {
-      resetBookingState(); // Reset calendar when changing location
-      
       selectedLocation = location;
       selectedLocationId = LOCATIONS_DATA[location].locationId;
       addMessage('user', location);
       
       addMessage('system', `Perfect! Creating your booking session for ${location}...`);
-      createCart();
+      createCartAndAssignService();
     }
     
-    function createCart() {
+    function createCartAndAssignService() {
       const formattedLocationId = selectedLocationId.indexOf('urn:blvd:Location:') === 0 ? 
         selectedLocationId : 'urn:blvd:Location:' + selectedLocationId;
       
@@ -2996,7 +1814,8 @@
           cartId = cart.id;
           console.log('Cart created:', cartId);
           
-          loadServices(cart);
+          // Automatically assign a service that the injector can perform
+          assignDefaultService(cart);
         })
         .catch(error => {
           console.error('Cart creation failed:', error.message);
@@ -3004,30 +1823,12 @@
         });
     }
     
-    function loadServices(cart) {
+    function assignDefaultService(cart) {
       const categories = cart.availableCategories || [];
-      const services = [];
+      let foundService = false;
       
       for (const category of categories) {
-        let categoryItems = category.availableItems || [];
-        
-        if (treatmentType === 'injectable') {
-          categoryItems = categoryItems.filter(item => 
-            item.name.toLowerCase().includes('botox') ||
-            item.name.toLowerCase().includes('filler') ||
-            item.name.toLowerCase().includes('inject') ||
-            item.name.toLowerCase().includes('dysport') ||
-            category.name.toLowerCase().includes('inject')
-          );
-        } else if (treatmentType === 'skin') {
-          categoryItems = categoryItems.filter(item => 
-            item.name.toLowerCase().includes('laser') ||
-            item.name.toLowerCase().includes('microneedling') ||
-            item.name.toLowerCase().includes('facial') ||
-            item.name.toLowerCase().includes('peel') ||
-            category.name.toLowerCase().includes('skin')
-          );
-        }
+        const categoryItems = category.availableItems || [];
         
         for (const item of categoryItems) {
           // Get staff variants for this service
@@ -3040,91 +1841,31 @@
             );
           }
           
-          services.push({
-            id: item.id,
-            name: item.name,
-            description: item.description,
-            price: item.listPrice,
-            duration: item.listDuration,
-            category: category.name,
-            staffVariants: staffVariants
-          });
-        }
-      }
-      
-      if (services.length > 0) {
-        availableServices = services;
-        showServices();
-      } else {
-        showServiceFallback();
-      }
-    }
-    
-    function showServices() {
-      const treatmentLabel = treatmentType === 'injectable' ? 'injectable treatments' : 'skin treatments';
-      addMessage('system', `Here are the available ${treatmentLabel} at ${selectedLocation}:`, function() {
-        const container = document.getElementById('messages');
-        const serviceMessage = document.createElement('div');
-        serviceMessage.className = 'message system';
-        
-        const bubble = document.createElement('div');
-        bubble.className = 'message-bubble';
-        
-        const grid = document.createElement('div');
-        grid.className = 'service-grid';
-        
-        for (const service of availableServices.slice(0, 10)) {
-          const button = document.createElement('button');
-          button.className = 'service-button';
-          button.onclick = () => selectService(service.id, service.name);
-          
-          const serviceInfo = document.createElement('div');
-          serviceInfo.className = 'service-info';
-          
-          const nameDiv = document.createElement('div');
-          nameDiv.className = 'service-name';
-          nameDiv.textContent = service.name;
-          
-          const durationDiv = document.createElement('div');
-          durationDiv.className = 'service-duration';
-          durationDiv.textContent = service.duration ? `${service.duration} minutes` : '';
-          
-          serviceInfo.appendChild(nameDiv);
-          serviceInfo.appendChild(durationDiv);
-          
-          const priceDiv = document.createElement('div');
-          priceDiv.className = 'service-price';
-          priceDiv.textContent = service.price ? `${Math.round(service.price / 100)}` : 'Contact for pricing';
-          
-          button.appendChild(serviceInfo);
-          button.appendChild(priceDiv);
-          grid.appendChild(button);
+          // If we found a service this injector can perform, use it
+          if (staffVariants.length > 0) {
+            selectedService = item.name;
+            selectedServiceId = item.id;
+            
+            console.log('🎯 Auto-assigned service:', selectedService);
+            addMessage('system', `Great! I've assigned ${selectedService} for your appointment. Now let me find available times...`);
+            
+            // Add the service to cart and proceed
+            addServiceToCart(staffVariants[0].id);
+            foundService = true;
+            break;
+          }
         }
         
-        bubble.appendChild(grid);
-        
-        const smsButton = document.createElement('button');
-        smsButton.className = 'secondary-button';
-        smsButton.textContent = "Don't see what you're looking for? Contact us";
-        smsButton.onclick = () => openSMS('service-inquiry');
-        bubble.appendChild(smsButton);
-        
-        serviceMessage.appendChild(bubble);
-        container.appendChild(serviceMessage);
-        scrollToBottom();
-      });
-    }
-    
-    function selectService(serviceId, serviceName) {
-      selectedService = serviceName;
-      selectedServiceId = serviceId;
-      addMessage('user', serviceName);
+        if (foundService) break;
+      }
       
-      addMessage('system', `Great! I've added ${serviceName} to your booking. Now let me find available appointment times...`);
-      addServiceToCart();
+      if (!foundService) {
+        console.log('❌ No services found for this injector at this location');
+        showErrorFallback('No services available for this injector at this location. Please try a different combination.');
+      }
     }
     
-    function addServiceToCart() {
+    function addServiceToCart(staffVariantId = null) {
       const mutation = `
         mutation AddCartItem($cartId: ID!, $itemId: ID!, $itemStaffVariantId: ID) {
           addCartSelectedBookableItem(input: {
@@ -3147,26 +1888,9 @@
         itemId: selectedServiceId 
       };
       
-      // Add staff variant if we have a specific injector selected
-      if (selectedInjectorId && selectedInjectorId !== 'first-available') {
-        console.log('🎯 Looking for staff variant for injector:', selectedInjectorId);
-        
-        // Find the staff variant for the selected injector from the selected service
-        const selectedServiceData = availableServices.find(s => s.id === selectedServiceId);
-        console.log('🎯 Selected service data:', selectedServiceData);
-        
-        if (selectedServiceData && selectedServiceData.staffVariants) {
-          const staffVariant = selectedServiceData.staffVariants.find(v => 
-            v.staff && v.staff.id === selectedInjectorId
-          );
-          
-          if (staffVariant) {
-            console.log('🎯 Found staff variant:', staffVariant);
-            variables.itemStaffVariantId = staffVariant.id;
-          } else {
-            console.log('🎯 No staff variant found for injector, will use first available');
-          }
-        }
+      // Add staff variant if provided
+      if (staffVariantId) {
+        variables.itemStaffVariantId = staffVariantId;
       }
       
       console.log('🎯 Adding service to cart with variables:', variables);
@@ -3471,7 +2195,6 @@
         .catch(error => {
           console.error('❌ Failed to reserve time slot:', error);
           addMessage('system', `I'm sorry, that time slot is no longer available. Please choose a different time.`);
-          // Could reload times here or show error
           showErrorMessage('Time slot is no longer available. Please select a different time.');
         });
     }
@@ -3542,7 +2265,6 @@
       }, 1000);
     }
     
-    // FIXED: Complete booking function with proper Boulevard API calls
     function completeBooking() {
       const firstName = document.getElementById('firstName').value.trim();
       const lastName = document.getElementById('lastName').value.trim();
@@ -3593,32 +2315,16 @@
       
       addMessage('user', `${firstName} ${lastName} - ${email}`);
       
-      // Debug the schema first (optional - remove in production)
-      console.log('🔍 Starting booking completion process...');
-      
       // Process the booking with Boulevard API
-      debugBookingCompleteSchema()
-        .then(() => {
-          return debugCartStatus();
-        })
-        .then(cart => {
-          if (cart && cart.errors && cart.errors.length > 0) {
-            console.error('❌ Cart has errors:', cart.errors);
-            throw new Error(`Cart errors: ${cart.errors.map(e => e.message).join(', ')}`);
-          }
-          return updateCartWithClientInfo();
-        })
+      console.log('✅ Starting booking completion process...');
+      
+      updateCartWithClientInfo()
         .then(() => {
           console.log('✅ Client info updated, attempting booking completion...');
           return completeAPIBooking();
         })
         .then((result) => {
           console.log('✅ Booking successful:', result);
-          
-          // Show any warnings to the user if needed
-          if (result.warnings && result.warnings.length > 0) {
-            console.warn('⚠️ Booking completed with warnings:', result.warnings);
-          }
           
           button.textContent = originalText;
           button.disabled = false;
@@ -3630,7 +2336,6 @@
           button.disabled = false;
           console.error('❌ Booking completion failed:', error);
           
-          // More specific error handling
           let errorMessage = 'Booking failed. Please contact us to complete your appointment.';
           
           if (error.message.includes('payment')) {
@@ -3639,13 +2344,10 @@
             errorMessage = 'Unable to complete booking due to permissions. Please contact us.';
           } else if (error.message.includes('time') || error.message.includes('available')) {
             errorMessage = 'The selected time is no longer available. Please choose a different time.';
-          } else if (error.message.includes('GraphQL Error')) {
-            errorMessage = `Booking system error: ${error.message}. Please contact us.`;
           }
           
           showErrorMessage(errorMessage);
           
-          // Also show a fallback contact option
           setTimeout(() => {
             showSMSOption();
           }, 2000);
@@ -3692,9 +2394,117 @@
       })
       .catch(error => {
         console.error('❌ Update cart failed:', error);
-        // Don't fail the whole process if this fails
         return Promise.resolve();
       });
+    }
+    
+    function completeAPIBooking() {
+      console.log('✅ Completing booking using bookingComplete mutation...');
+      
+      const mutation = `
+        mutation BookingComplete($input: BookingCompleteInput!) {
+          bookingComplete(input: $input) {
+            booking {
+              id
+              state
+              insertedAt
+            }
+            bookingAppointments {
+              id
+              startTime
+              endTime
+              state
+              client {
+                id
+                firstName
+                lastName
+                email
+                phoneNumber
+              }
+              location {
+                id
+                name
+              }
+              services {
+                id
+                name
+              }
+              staff {
+                id
+                firstName
+                lastName
+              }
+            }
+            bookingWarnings {
+              field
+              message
+            }
+          }
+        }
+      `;
+      
+      const inputVariations = [
+        { cartId: cartId },
+        { id: cartId },
+        { 
+          cartId: cartId,
+          paymentMethodId: null,
+          gratuityAmount: 0
+        },
+        {
+          cartId: cartId,
+          paymentMethod: null,
+          gratuity: { amount: 0 },
+          discountCodes: []
+        }
+      ];
+      
+      function tryBookingComplete(variationIndex = 0) {
+        if (variationIndex >= inputVariations.length) {
+          throw new Error('All booking completion variations failed');
+        }
+        
+        const input = inputVariations[variationIndex];
+        console.log(`✅ Trying booking completion variation ${variationIndex + 1}:`, input);
+        
+        return makeBoulevardRequest(mutation, { input: input })
+          .then(data => {
+            console.log('✅ Booking completed successfully:', data);
+            
+            const result = data.bookingComplete;
+            
+            if (result.bookingWarnings && result.bookingWarnings.length > 0) {
+              console.warn('⚠️ Booking warnings:', result.bookingWarnings);
+            }
+            
+            if (result.bookingAppointments && result.bookingAppointments.length > 0) {
+              const appointment = result.bookingAppointments[0];
+              console.log('✅ Appointment created with ID:', appointment.id);
+              
+              return {
+                success: true,
+                bookingId: result.booking.id,
+                appointmentId: appointment.id,
+                appointment: appointment,
+                warnings: result.bookingWarnings
+              };
+            } else {
+              throw new Error('No appointments were created in the booking');
+            }
+          })
+          .catch(error => {
+            console.error(`❌ Booking variation ${variationIndex + 1} failed:`, error);
+            
+            if (variationIndex < inputVariations.length - 1) {
+              console.log(`⏭️ Trying next variation...`);
+              return tryBookingComplete(variationIndex + 1);
+            } else {
+              throw error;
+            }
+          });
+      }
+      
+      return tryBookingComplete();
     }
     
     function showFieldError(fieldId, message) {
@@ -3767,18 +2577,6 @@
       scrollToBottom();
     }
     
-    function showServiceFallback() {
-      addMessage('system', 'I\'m having trouble loading services right now. Let me connect you with our team:', function() {
-        showSMSOption();
-      });
-    }
-    
-    function showNoAvailabilityMessage() {
-      addMessage('system', `I don't see any available times in the next two weeks. Let me connect you with our team:`, function() {
-        showSMSOption();
-      });
-    }
-    
     function showErrorFallback(message) {
       addMessage('system', message + ' Let me connect you:', function() {
         showSMSOption();
@@ -3806,14 +2604,12 @@
     }
     
     function openSMS(context) {
-      let message = "I'd like to book an appointment at Get Plump";
+      let message = "I'd like to book an appointment at Plump";
       
       if (context === 'follow-up') {
         message = "I just completed a booking and have a question";
       } else if (context === 'injector-inquiry') {
         message = 'I\'m looking for a specific injector that wasn\'t listed';
-      } else if (context === 'service-inquiry') {
-        message = `I'm looking for services at ${selectedLocation} but need different options`;
       } else if (context === 'time-inquiry') {
         message = `I'm looking for ${selectedService} at ${selectedLocation} but need different time options`;
       }
@@ -3835,7 +2631,7 @@
       }, 100);
     }
     
-    console.log('✅ Script fully loaded with proxy API integration');
+    console.log('✅ Script fully loaded with updated flow');
   </script>
 </body>
 </html>
