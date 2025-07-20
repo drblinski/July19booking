@@ -12,1125 +12,6 @@
       box-sizing: border-box;
     }
     
-    /* Injector Availability Styles */
-    .location-legend {
-      background: #fafbfc;
-      border-radius: 16px;
-      padding: 20px;
-      margin: 20px 0;
-      border: 1px solid #f0f1f3;
-    }
-    
-    .legend-title {
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #1a1d1f;
-      font-size: 1rem;
-      letter-spacing: -0.02em;
-    }
-    
-    .legend-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: #fff;
-      border-radius: 20px;
-      border: 2px solid #f0f1f3;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 0.9rem;
-      font-weight: 500;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-    
-    .legend-item:hover {
-      border-color: #FFB89A;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 6px rgba(255, 184, 154, 0.12);
-    }
-    
-    body.member-theme .legend-item:hover {
-      border-color: #FFD700;
-      box-shadow: 0 2px 6px rgba(255, 215, 0, 0.12);
-    }
-    
-    .legend-item.inactive {
-      opacity: 0.5;
-      background: #f8f9fa;
-    }
-    
-    body.member-theme .legend-item.inactive {
-      background: #1a1a1a;
-    }
-    
-    .legend-color {
-      width: 14px;
-      height: 14px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-    
-    .injector-calendar-day {
-      position: relative;
-    }
-    
-    .calendar-slots {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      margin-top: 6px;
-    }
-    
-    .slot-indicator {
-      height: 4px;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .slot-indicator:hover {
-      height: 6px;
-      transform: translateY(-1px);
-    }
-    
-    .slot-tooltip {
-      position: absolute;
-      background: #1a1d1f;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      z-index: 1000;
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-    }
-    
-    .slot-tooltip.visible {
-      opacity: 1;
-      transform: translateY(-5px);
-    }
-    
-    .slot-tooltip::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 5px solid transparent;
-      border-top-color: #1a1d1f;
-    }
-    
-    .injector-time-slots {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      max-height: 300px;
-      overflow-y: auto;
-      overflow-x: auto;
-      padding: 16px;
-      background: #fafbfc;
-      border-radius: 16px;
-      border: 1px solid #f0f1f3;
-      margin-top: 20px;
-    }
-    
-    body.member-theme .injector-time-slots {
-      background: #2a2a2a;
-      border-color: #444;
-    }
-    
-    .injector-time-slot {
-      background: #fff;
-      border: 2px solid #f0f1f3;
-      border-radius: 12px;
-      padding: 14px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-    
-    body.member-theme .injector-time-slot {
-      background: #333;
-      border-color: #555;
-      color: #fff;
-    }
-    
-    .injector-time-slot:hover {
-      border-color: #FFB89A;
-      transform: translateY(-2px);
-      box-shadow: 0 3px 10px rgba(255, 184, 154, 0.12);
-    }
-    
-    body.member-theme .injector-time-slot:hover {
-      border-color: #FFD700;
-      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.12);
-    }
-    
-    .slot-time {
-      font-weight: 700;
-      font-size: 0.95rem;
-      margin-bottom: 6px;
-      letter-spacing: -0.02em;
-    }
-    
-    .slot-location {
-      font-size: 0.8rem;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-weight: 500;
-    }
-    
-    body.member-theme .slot-location {
-      color: #999;
-    }
-    
-    .slot-location-color {
-      width: 10px;
-      height: 10px;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
-    
-    // NEW: Load injectors specifically for availability view
-    function loadInjectorsForAvailability() {
-      console.log('🔍 Loading injectors for availability view...');
-      
-      // Show loading state
-      const container = document.getElementById('messages');
-      const loadingMessage = document.createElement('div');
-      loadingMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      bubble.textContent = 'Loading our team of injectors...';
-      
-      loadingMessage.appendChild(bubble);
-      container.appendChild(loadingMessage);
-      scrollToBottom();
-      
-      // Get all locations and their staff
-      const locationEntries = Object.entries(LOCATIONS_DATA);
-      console.log('🔍 Loading staff from all locations for availability view');
-      
-      const allStaffPromises = locationEntries.map(([locationName, locationData]) => {
-        const locationId = locationData.locationId.indexOf('urn:blvd:Location:') === 0 ? 
-          locationData.locationId : 'urn:blvd:Location:' + locationData.locationId;
-        
-        const query = `
-          mutation CreateTempCart($locationId: ID!) {
-            createCart(input: { locationId: $locationId }) {
-              cart {
-                id
-                availableCategories {
-                  name
-                  availableItems {
-                    id
-                    name
-                    ... on CartAvailableBookableItem {
-                      staffVariants {
-                        id
-                        staff {
-                          id
-                          firstName
-                          lastName
-                          nickname
-                          avatar
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `;
-        
-        return makeBoulevardRequest(query, { locationId: locationId })
-          .then(data => ({
-            locationName: locationName,
-            locationId: locationId,
-            cart: data.createCart.cart
-          }))
-          .catch(error => {
-            console.error('🔍 Failed to load from location:', locationName, error);
-            return { locationName: locationName, locationId: locationId, cart: null };
-          });
-      });
-      
-      Promise.all(allStaffPromises)
-        .then(responses => {
-          const staffMap = new Map();
-          
-          responses.forEach(response => {
-            if (!response.cart) return;
-            
-            const { locationName, cart } = response;
-            
-            if (cart.availableCategories) {
-              cart.availableCategories.forEach(category => {
-                if (category.availableItems) {
-                  category.availableItems.forEach(item => {
-                    if (item.staffVariants && item.staffVariants.length > 0) {
-                      item.staffVariants.forEach(variant => {
-                        if (variant.staff) {
-                          if (!staffMap.has(variant.staff.id)) {
-                            staffMap.set(variant.staff.id, {
-                              id: variant.staff.id,
-                              firstName: variant.staff.firstName,
-                              lastName: variant.staff.lastName,
-                              nickname: variant.staff.nickname,
-                              avatar: variant.staff.avatar ? { url: variant.staff.avatar } : null,
-                              locations: [locationName]
-                            });
-                          } else {
-                            const staff = staffMap.get(variant.staff.id);
-                            if (!staff.locations.includes(locationName)) {
-                              staff.locations.push(locationName);
-                            }
-                          }
-                        }
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          });
-          
-          const staffList = Array.from(staffMap.values());
-          
-          if (staffList.length > 0) {
-            console.log('✅ Successfully loaded staff for availability view:', staffList);
-            availableStaff = staffList;
-            assignLocationColors(staffList);
-            showInjectorsForAvailability();
-          } else {
-            console.log('❌ No staff found, using mock data');
-            loadMockStaffForAvailability();
-          }
-        })
-        .catch(error => {
-          console.error('❌ Failed to load staff:', error);
-          loadMockStaffForAvailability();
-        });
-    }
-    
-    function loadMockStaffForAvailability() {
-      const mockStaff = [
-        {
-          id: 'staff1',
-          firstName: 'Sarah',
-          lastName: 'Johnson',
-          avatar: null,
-          locations: ['West Village', 'SoHo']
-        },
-        {
-          id: 'staff2',
-          firstName: 'Michael',
-          lastName: 'Chen',
-          avatar: null,
-          locations: ['Tribeca', 'Williamsburg']
-        },
-        {
-          id: 'staff3',
-          firstName: 'Emily',
-          lastName: 'Rodriguez',
-          avatar: null,
-          locations: ['Hoboken', 'Uptown']
-        },
-        {
-          id: 'staff4',
-          firstName: 'David',
-          lastName: 'Thompson',
-          avatar: null,
-          locations: ['Miami', 'West Village']
-        },
-        {
-          id: 'staff5',
-          firstName: 'Jessica',
-          lastName: 'Martinez',
-          avatar: null,
-          locations: ['SoHo', 'Tribeca']
-        }
-      ];
-      
-      availableStaff = mockStaff;
-      assignLocationColors(mockStaff);
-      showInjectorsForAvailability();
-    }
-    
-    function assignLocationColors(staffList) {
-      const colors = ['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#5856D6', '#AF52DE', '#FF2D92', '#64D2FF'];
-      const allLocations = new Set();
-      
-      staffList.forEach(staff => {
-        staff.locations.forEach(location => allLocations.add(location));
-      });
-      
-      const locationArray = Array.from(allLocations);
-      locationColors = {};
-      
-      locationArray.forEach((location, index) => {
-        locationColors[location] = colors[index % colors.length];
-      });
-      
-      console.log('🎨 Assigned location colors:', locationColors);
-    }
-    
-    function showInjectorsForAvailability() {
-      console.log('🎨 Showing injectors for availability view');
-      
-      // Remove loading message
-      const messages = document.querySelectorAll('.message');
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && lastMessage.textContent.includes('Loading our team')) {
-        lastMessage.remove();
-      }
-      
-      const container = document.getElementById('messages');
-      const injectorsMessage = document.createElement('div');
-      injectorsMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      bubble.innerHTML = 'Select an injector to view their availability across all locations:';
-      
-      const injectorContainer = document.createElement('div');
-      injectorContainer.className = 'injector-container';
-      
-      const injectorList = document.createElement('div');
-      injectorList.className = 'injector-list';
-      
-      // Show individual injectors
-      availableStaff.forEach((staff, index) => {
-        const item = document.createElement('div');
-        item.className = 'injector-item';
-        item.onclick = () => selectInjectorForAvailability(staff);
-        
-        const photo = document.createElement('div');
-        photo.className = 'injector-photo';
-        if (staff.avatar && staff.avatar.url) {
-          photo.style.backgroundImage = `url(${staff.avatar.url})`;
-        }
-        
-        const name = document.createElement('div');
-        name.className = 'injector-name';
-        name.textContent = `${staff.firstName} ${staff.lastName}`;
-        
-        // Add location info
-        const locations = document.createElement('div');
-        locations.style.fontSize = '0.8rem';
-        locations.style.color = isMemberTheme ? '#999' : '#86868b';
-        locations.style.marginTop = '4px';
-        locations.textContent = staff.locations.join(', ');
-        
-        const info = document.createElement('div');
-        info.style.flex = '1';
-        info.appendChild(name);
-        info.appendChild(locations);
-        
-        item.appendChild(photo);
-        item.appendChild(info);
-        
-        injectorList.appendChild(item);
-      });
-      
-      injectorContainer.appendChild(injectorList);
-      bubble.appendChild(injectorContainer);
-      
-      injectorsMessage.appendChild(bubble);
-      container.appendChild(injectorsMessage);
-      scrollToBottom();
-    }
-    
-    function selectInjectorForAvailability(staff) {
-      resetBookingState(); // Reset when selecting injector
-      
-      selectedInjector = `${staff.firstName} ${staff.lastName}`;
-      selectedInjectorId = staff.id;
-      injectorLocations = staff.locations;
-      
-      // Initialize all locations as visible
-      visibleLocations = new Set(staff.locations);
-      
-      addMessage('user', selectedInjector);
-      addMessage('system', `Perfect! Loading ${selectedInjector}'s availability across all locations...`, function() {
-        loadInjectorAvailabilityAcrossLocations();
-      });
-    }
-    
-    function loadInjectorAvailabilityAcrossLocations() {
-      console.log('🔍 Loading availability for injector across all locations');
-      
-      const promises = injectorLocations.map(locationName => {
-        return loadInjectorAvailabilityForLocation(locationName);
-      });
-      
-      Promise.all(promises)
-        .then(() => {
-          console.log('✅ Loaded availability for all locations');
-          showInjectorAvailabilityCalendar();
-        })
-        .catch(error => {
-          console.error('❌ Failed to load availability:', error);
-          showErrorMessage('Unable to load availability. Please try again or contact us.');
-        });
-    }
-    
-    function loadInjectorAvailabilityForLocation(locationName) {
-      const locationData = LOCATIONS_DATA[locationName];
-      if (!locationData) {
-        console.error('Location not found:', locationName);
-        return Promise.resolve();
-      }
-      
-      const locationId = locationData.locationId.indexOf('urn:blvd:Location:') === 0 ? 
-        locationData.locationId : 'urn:blvd:Location:' + locationData.locationId;
-      
-      console.log(`🔍 Loading availability for ${locationName}`);
-      
-      // Create a temporary cart for this location
-      const createCartQuery = `
-        mutation CreateTempCart($locationId: ID!) {
-          createCart(input: { locationId: $locationId }) {
-            cart {
-              id
-              availableCategories {
-                availableItems {
-                  id
-                  name
-                  ... on CartAvailableBookableItem {
-                    staffVariants {
-                      id
-                      staff {
-                        id
-                        firstName
-                        lastName
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(createCartQuery, { locationId: locationId })
-        .then(data => {
-          const cart = data.createCart.cart;
-          
-          // Find a service that this injector can perform
-          let selectedServiceId = null;
-          let selectedStaffVariantId = null;
-          
-          for (const category of cart.availableCategories) {
-            for (const item of category.availableItems) {
-              if (item.staffVariants) {
-                const staffVariant = item.staffVariants.find(variant => 
-                  variant.staff && variant.staff.id === selectedInjectorId
-                );
-                if (staffVariant) {
-                  selectedServiceId = item.id;
-                  selectedStaffVariantId = staffVariant.id;
-                  break;
-                }
-              }
-            }
-            if (selectedServiceId) break;
-          }
-          
-          if (!selectedServiceId) {
-            console.log(`No services found for injector at ${locationName}`);
-            return;
-          }
-          
-          // Add service to cart
-          const addServiceQuery = `
-            mutation AddCartItem($cartId: ID!, $itemId: ID!, $itemStaffVariantId: ID!) {
-              addCartSelectedBookableItem(input: {
-                id: $cartId,
-                itemId: $itemId,
-                itemStaffVariantId: $itemStaffVariantId
-              }) {
-                cart {
-                  id
-                }
-              }
-            }
-          `;
-          
-          return makeBoulevardRequest(addServiceQuery, {
-            cartId: cart.id,
-            itemId: selectedServiceId,
-            itemStaffVariantId: selectedStaffVariantId
-          }).then(() => {
-            // Load availability for the next 30 days
-            const promises = [];
-            const today = new Date();
-            
-            for (let i = 0; i < 30; i++) {
-              const date = new Date(today);
-              date.setDate(date.getDate() + i);
-              promises.push(loadAvailabilityForInjectorDate(cart.id, date, locationName));
-            }
-            
-            return Promise.all(promises);
-          });
-        })
-        .catch(error => {
-          console.error(`Failed to load availability for ${locationName}:`, error);
-        });
-    }
-    
-    function loadAvailabilityForInjectorDate(cartId, date, locationName) {
-      const dateStr = date.toISOString().split('T')[0];
-      
-      const query = `
-        query GetCartBookableTimes($cartId: ID!, $searchDate: Date!) {
-          cartBookableTimes(
-            id: $cartId,
-            searchDate: $searchDate,
-            tz: "America/New_York"
-          ) {
-            id
-            startTime
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(query, { 
-        cartId: cartId, 
-        searchDate: dateStr 
-      })
-        .then(data => {
-          const times = data.cartBookableTimes || [];
-          
-          if (!injectorAvailabilityData[dateStr]) {
-            injectorAvailabilityData[dateStr] = {};
-          }
-          
-          injectorAvailabilityData[dateStr][locationName] = times;
-          return times;
-        })
-        .catch(error => {
-          console.error('Failed to load availability for', dateStr, locationName, error);
-          if (!injectorAvailabilityData[dateStr]) {
-            injectorAvailabilityData[dateStr] = {};
-          }
-          injectorAvailabilityData[dateStr][locationName] = [];
-          return [];
-        });
-    }
-    
-    function showInjectorAvailabilityCalendar() {
-      const container = document.getElementById('messages');
-      const calendarMessage = document.createElement('div');
-      calendarMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      
-      // Location legend and toggle
-      const legend = document.createElement('div');
-      legend.className = 'location-legend';
-      legend.style.background = isMemberTheme ? '#2a2a2a' : '#fafbfc';
-      legend.style.borderColor = isMemberTheme ? '#444' : '#f0f1f3';
-      
-      const legendTitle = document.createElement('div');
-      legendTitle.className = 'legend-title';
-      legendTitle.textContent = 'Locations (click to toggle):';
-      legendTitle.style.color = isMemberTheme ? '#FFD700' : '#1a1d1f';
-      
-      const legendItems = document.createElement('div');
-      legendItems.className = 'legend-items';
-      
-      injectorLocations.forEach(locationName => {
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        legendItem.style.background = isMemberTheme ? '#333' : '#fff';
-        legendItem.style.borderColor = isMemberTheme ? '#555' : '#f0f1f3';
-        legendItem.style.color = isMemberTheme ? '#fff' : '#000';
-        
-        if (!visibleLocations.has(locationName)) {
-          legendItem.classList.add('inactive');
-        }
-        
-        legendItem.onclick = () => toggleLocationVisibility(locationName);
-        
-        const colorDiv = document.createElement('div');
-        colorDiv.className = 'legend-color';
-        colorDiv.style.backgroundColor = locationColors[locationName];
-        
-        const nameDiv = document.createElement('div');
-        nameDiv.textContent = locationName;
-        
-        legendItem.appendChild(colorDiv);
-        legendItem.appendChild(nameDiv);
-        legendItems.appendChild(legendItem);
-      });
-      
-      legend.appendChild(legendTitle);
-      legend.appendChild(legendItems);
-      
-      // Calendar container
-      const availabilityContainer = document.createElement('div');
-      availabilityContainer.className = 'availability-container';
-      availabilityContainer.id = 'injector-availability-container';
-      
-      bubble.appendChild(legend);
-      bubble.appendChild(availabilityContainer);
-      
-      calendarMessage.appendChild(bubble);
-      container.appendChild(calendarMessage);
-      scrollToBottom();
-      
-      renderInjectorAvailabilityCalendar();
-    }
-    
-    function toggleLocationVisibility(locationName) {
-      if (visibleLocations.has(locationName)) {
-        visibleLocations.delete(locationName);
-      } else {
-        visibleLocations.add(locationName);
-      }
-      
-      // Update legend items
-      const legendItems = document.querySelectorAll('.legend-item');
-      legendItems.forEach(item => {
-        const locationText = item.textContent;
-        if (locationText === locationName) {
-          if (visibleLocations.has(locationName)) {
-            item.classList.remove('inactive');
-          } else {
-            item.classList.add('inactive');
-          }
-        }
-      });
-      
-      // Re-render calendar
-      renderInjectorAvailabilityCalendar();
-    }
-    
-    function renderInjectorAvailabilityCalendar() {
-      const container = document.getElementById('injector-availability-container');
-      container.innerHTML = '';
-      
-      // Calendar header
-      const calendarHeader = document.createElement('div');
-      calendarHeader.className = 'calendar-header';
-      
-      const calendarTitle = document.createElement('div');
-      calendarTitle.className = 'calendar-title';
-      calendarTitle.textContent = `${selectedInjector}'s Availability`;
-      
-      calendarHeader.appendChild(calendarTitle);
-      
-      // Calendar container with scroll
-      const calendarContainer = document.createElement('div');
-      calendarContainer.className = 'calendar-container';
-      
-      // Calendar grid
-      const calendarGrid = document.createElement('div');
-      calendarGrid.className = 'calendar-grid';
-      
-      // Day headers
-      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      dayHeaders.forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'calendar-day-header';
-        dayHeader.textContent = day;
-        calendarGrid.appendChild(dayHeader);
-      });
-      
-      // Generate calendar for current month
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      
-      // Add empty cells for days before the first day of the month
-      for (let i = 0; i < firstDay.getDay(); i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day disabled';
-        calendarGrid.appendChild(emptyDay);
-      }
-      
-      // Add days of the month
-      for (let day = 1; day <= lastDay.getDate(); day++) {
-        const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split('T')[0];
-        const dayElement = document.createElement('div');
-        dayElement.className = 'calendar-day injector-calendar-day';
-        
-        // Check if day is in the past
-        if (date < today) {
-          dayElement.classList.add('disabled');
-        } else {
-          dayElement.onclick = () => selectInjectorDate(date);
-        }
-        
-        const dayNumber = document.createElement('div');
-        dayNumber.className = 'day-number';
-        dayNumber.textContent = day;
-        
-        const slotsContainer = document.createElement('div');
-        slotsContainer.className = 'calendar-slots';
-        slotsContainer.style.display = 'flex';
-        slotsContainer.style.flexDirection = 'column';
-        slotsContainer.style.gap = '3px';
-        slotsContainer.style.marginTop = '6px';
-        
-        // Add slot indicators for visible locations
-        const dayData = injectorAvailabilityData[dateStr];
-        if (dayData) {
-          let hasSlots = false;
-          
-          Object.keys(dayData).forEach(locationName => {
-            if (!visibleLocations.has(locationName)) return;
-            
-            const slots = dayData[locationName];
-            if (slots && slots.length > 0) {
-              hasSlots = true;
-              
-              // Show up to 3 slot indicators per location
-              const slotsToShow = Math.min(3, slots.length);
-              for (let i = 0; i < slotsToShow; i++) {
-                const slotIndicator = document.createElement('div');
-                slotIndicator.style.height = '4px';
-                slotIndicator.style.borderRadius = '2px';
-                slotIndicator.style.cursor = 'pointer';
-                slotIndicator.style.transition = 'all 0.3s ease';
-                slotIndicator.style.backgroundColor = locationColors[locationName];
-                slotIndicator.title = `${locationName} - ${slots.length} slot${slots.length > 1 ? 's' : ''}`;
-                slotsContainer.appendChild(slotIndicator);
-              }
-            }
-          });
-          
-          if (hasSlots) {
-            dayElement.classList.add('has-availability');
-          }
-        }
-        
-        dayElement.appendChild(dayNumber);
-        dayElement.appendChild(slotsContainer);
-        calendarGrid.appendChild(dayElement);
-      }
-      
-      calendarContainer.appendChild(calendarGrid);
-      
-      container.appendChild(calendarHeader);
-      container.appendChild(calendarContainer);
-      
-      // Time slots container (initially hidden)
-      const timeSlotsContainer = document.createElement('div');
-      timeSlotsContainer.className = 'injector-time-slots';
-      timeSlotsContainer.id = 'injector-time-slots-container';
-      timeSlotsContainer.style.display = 'none';
-      timeSlotsContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(140px, 1fr))';
-      timeSlotsContainer.style.gap = '12px';
-      timeSlotsContainer.style.maxHeight = '300px';
-      timeSlotsContainer.style.overflowY = 'auto';
-      timeSlotsContainer.style.padding = '16px';
-      timeSlotsContainer.style.background = isMemberTheme ? '#2a2a2a' : '#fafbfc';
-      timeSlotsContainer.style.borderRadius = '16px';
-      timeSlotsContainer.style.border = `1px solid ${isMemberTheme ? '#444' : '#f0f1f3'}`;
-      timeSlotsContainer.style.marginTop = '20px';
-      container.appendChild(timeSlotsContainer);
-    }
-    
-    function selectInjectorDate(date) {
-      selectedDate = date;
-      const dateStr = date.toISOString().split('T')[0];
-      
-      // Update selected state in calendar
-      document.querySelectorAll('.injector-calendar-day').forEach(day => {
-        day.classList.remove('selected');
-      });
-      
-      // Find and select the clicked day
-      const dayElements = document.querySelectorAll('.injector-calendar-day');
-      dayElements.forEach(dayElement => {
-        const dayNumber = dayElement.querySelector('.day-number');
-        if (dayNumber && parseInt(dayNumber.textContent) === date.getDate()) {
-          dayElement.classList.add('selected');
-        }
-      });
-      
-      showInjectorTimeSlotsForDate(date);
-    }
-    
-    function showInjectorTimeSlotsForDate(date) {
-      const dateStr = date.toISOString().split('T')[0];
-      const dayData = injectorAvailabilityData[dateStr];
-      
-      const timeSlotsContainer = document.getElementById('injector-time-slots-container');
-      timeSlotsContainer.innerHTML = '';
-      
-      if (!dayData) {
-        timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No availability data for this date</p>';
-        timeSlotsContainer.style.display = 'block';
-        return;
-      }
-      
-      const allSlots = [];
-      
-      // Collect all slots from visible locations
-      Object.keys(dayData).forEach(locationName => {
-        if (!visibleLocations.has(locationName)) return;
-        
-        const slots = dayData[locationName] || [];
-        slots.forEach(slot => {
-          allSlots.push({
-            ...slot,
-            locationName: locationName,
-            color: locationColors[locationName]
-          });
-        });
-      });
-      
-      if (allSlots.length === 0) {
-        timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No available times for this date</p>';
-      } else {
-        // Sort slots by time
-        allSlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-        
-        allSlots.forEach(slot => {
-          const startTime = new Date(slot.startTime);
-          const timeStr = startTime.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const timeSlot = document.createElement('div');
-          timeSlot.style.background = isMemberTheme ? '#333' : '#fff';
-          timeSlot.style.border = `2px solid ${isMemberTheme ? '#555' : '#f0f1f3'}`;
-          timeSlot.style.borderRadius = '12px';
-          timeSlot.style.padding = '14px';
-          timeSlot.style.textAlign = 'center';
-          timeSlot.style.cursor = 'pointer';
-          timeSlot.style.transition = 'all 0.3s ease';
-          timeSlot.style.position = 'relative';
-          timeSlot.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
-          timeSlot.style.color = isMemberTheme ? '#fff' : '#000';
-          
-          timeSlot.onmouseover = () => {
-            timeSlot.style.borderColor = isMemberTheme ? '#FFD700' : '#FFB89A';
-            timeSlot.style.transform = 'translateY(-2px)';
-            timeSlot.style.boxShadow = isMemberTheme ? '0 3px 10px rgba(255, 215, 0, 0.12)' : '0 3px 10px rgba(255, 184, 154, 0.12)';
-          };
-          
-          timeSlot.onmouseout = () => {
-            timeSlot.style.borderColor = isMemberTheme ? '#555' : '#f0f1f3';
-            timeSlot.style.transform = 'translateY(0)';
-            timeSlot.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
-          };
-          
-          timeSlot.onclick = () => selectInjectorTimeSlot(slot, timeStr, date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-          }));
-          
-          const timeDiv = document.createElement('div');
-          timeDiv.style.fontWeight = '700';
-          timeDiv.style.fontSize = '0.95rem';
-          timeDiv.style.marginBottom = '6px';
-          timeDiv.style.letterSpacing = '-0.02em';
-          timeDiv.textContent = timeStr;
-          
-          const locationDiv = document.createElement('div');
-          locationDiv.style.fontSize = '0.8rem';
-          locationDiv.style.color = isMemberTheme ? '#999' : '#6b7280';
-          locationDiv.style.display = 'flex';
-          locationDiv.style.alignItems = 'center';
-          locationDiv.style.justifyContent = 'center';
-          locationDiv.style.gap = '8px';
-          locationDiv.style.fontWeight = '500';
-          
-          const colorDiv = document.createElement('div');
-          colorDiv.style.width = '10px';
-          colorDiv.style.height = '10px';
-          colorDiv.style.borderRadius = '3px';
-          colorDiv.style.flexShrink = '0';
-          colorDiv.style.backgroundColor = slot.color;
-          
-          const nameDiv = document.createElement('div');
-          nameDiv.textContent = slot.locationName;
-          
-          locationDiv.appendChild(colorDiv);
-          locationDiv.appendChild(nameDiv);
-          
-          timeSlot.appendChild(timeDiv);
-          timeSlot.appendChild(locationDiv);
-          
-          timeSlotsContainer.appendChild(timeSlot);
-        });
-      }
-      
-      timeSlotsContainer.style.display = 'grid';
-      scrollToBottom();
-    }
-    
-    function selectInjectorTimeSlot(slot, timeStr, dateStr) {
-      selectedTime = { id: slot.id, time: timeStr, date: dateStr, startTime: slot.startTime };
-      selectedLocation = slot.locationName;
-      selectedLocationId = LOCATIONS_DATA[slot.locationName].locationId;
-      
-      addMessage('user', `${dateStr} at ${timeStr} - ${slot.locationName}`);
-      addMessage('system', `Perfect! I've noted your appointment with ${selectedInjector} at ${slot.locationName} on ${dateStr} at ${timeStr}. Let me prepare your booking...`);
-      
-      // Now we need to create a proper cart for this location and complete the booking
-      createCartForInjectorBooking();
-    }
-    
-    function createCartForInjectorBooking() {
-      console.log('🎯 Creating cart for injector booking at', selectedLocation);
-      
-      const formattedLocationId = selectedLocationId.indexOf('urn:blvd:Location:') === 0 ? 
-        selectedLocationId : 'urn:blvd:Location:' + selectedLocationId;
-      
-      const query = `
-        mutation CreateCart($locationId: ID!) {
-          createCart(input: { locationId: $locationId }) {
-            cart {
-              id
-              availableCategories {
-                availableItems {
-                  id
-                  name
-                  ... on CartAvailableBookableItem {
-                    staffVariants {
-                      id
-                      staff {
-                        id
-                        firstName
-                        lastName
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-      
-      makeBoulevardRequest(query, { locationId: formattedLocationId })
-        .then(data => {
-          const cart = data.createCart.cart;
-          cartId = cart.id;
-          
-          // Find a service this injector can perform
-          let foundService = false;
-          for (const category of cart.availableCategories) {
-            for (const item of category.availableItems) {
-              if (item.staffVariants) {
-                const staffVariant = item.staffVariants.find(variant => 
-                  variant.staff && variant.staff.id === selectedInjectorId
-                );
-                if (staffVariant) {
-                  // Use the first available service
-                  selectedService = item.name;
-                  selectedServiceId = item.id;
-                  
-                  // Add service to cart and continue
-                  return addInjectorServiceToCart(staffVariant.id);
-                }
-              }
-            }
-          }
-          
-          if (!foundService) {
-            throw new Error('No services found for this injector at this location');
-          }
-        })
-        .catch(error => {
-          console.error('Failed to create cart for injector booking:', error);
-          showErrorMessage('Unable to prepare booking. Please try again or contact us.');
-        });
-    }
-    
-    function addInjectorServiceToCart(staffVariantId) {
-      const mutation = `
-        mutation AddCartItem($cartId: ID!, $itemId: ID!, $itemStaffVariantId: ID!) {
-          addCartSelectedBookableItem(input: {
-            id: $cartId,
-            itemId: $itemId,
-            itemStaffVariantId: $itemStaffVariantId
-          }) {
-            cart {
-              id
-            }
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(mutation, {
-        cartId: cartId,
-        itemId: selectedServiceId,
-        itemStaffVariantId: staffVariantId
-      })
-        .then(() => {
-          console.log('Service added to cart for injector booking');
-          reserveInjectorTimeSlot();
-        })
-        .catch(error => {
-          console.error('Failed to add service for injector booking:', error);
-          showErrorMessage('Unable to add service. Please try again or contact us.');
-        });
-    }
-    
-    function reserveInjectorTimeSlot() {
-      console.log('🔒 Reserving injector time slot:', selectedTime.id);
-      
-      const mutation = `
-        mutation ReserveCartBookableItems($cartId: ID!, $bookableTimeId: ID!) {
-          reserveCartBookableItems(input: {
-            id: $cartId,
-            bookableTimeId: $bookableTimeId
-          }) {
-            cart {
-              id
-            }
-          }
-        }
-      `;
-      
-      makeBoulevardRequest(mutation, {
-        cartId: cartId,
-        bookableTimeId: selectedTime.id
-      })
-        .then(data => {
-          console.log('✅ Injector time slot reserved successfully');
-          addMessage('system', `Excellent! I've reserved your time slot with ${selectedInjector}. Now I need your contact information to complete your booking...`);
-          showClientInfoForm();
-        })
-        .catch(error => {
-          console.error('❌ Failed to reserve injector time slot:', error);
-          addMessage('system', `I'm sorry, that time slot is no longer available. Please choose a different time.`);
-          showErrorMessage('Time slot is no longer available. Please select a different time.');
-        });
-    }
-    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: #f8f9fa;
@@ -1544,6 +425,185 @@
     
     body.member-theme .injector-item.first-available .injector-name {
       color: #000;
+    }
+    
+    /* Location Legend and Staff Schedule Styles */
+    .location-legend {
+      background: #fafbfc;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid #f0f1f3;
+    }
+    
+    body.member-theme .location-legend {
+      background: #2a2a2a;
+      border-color: #444;
+    }
+    
+    .legend-title {
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1a1d1f;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+    
+    body.member-theme .legend-title {
+      color: #FFD700;
+    }
+    
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: #fff;
+      border-radius: 20px;
+      border: 2px solid #f0f1f3;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    
+    body.member-theme .legend-item {
+      background: #333;
+      border-color: #555;
+      color: #fff;
+    }
+    
+    .legend-item:hover {
+      border-color: #FFB89A;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(255, 184, 154, 0.12);
+    }
+    
+    body.member-theme .legend-item:hover {
+      border-color: #FFD700;
+      box-shadow: 0 2px 6px rgba(255, 215, 0, 0.12);
+    }
+    
+    .legend-item.inactive {
+      opacity: 0.5;
+      background: #f8f9fa;
+    }
+    
+    body.member-theme .legend-item.inactive {
+      background: #1a1a1a;
+    }
+    
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    
+    .injector-calendar-day {
+      position: relative;
+    }
+    
+    .calendar-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 6px;
+    }
+    
+    .slot-indicator {
+      height: 4px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .slot-indicator:hover {
+      height: 6px;
+      transform: translateY(-1px);
+    }
+    
+    .injector-time-slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: auto;
+      padding: 16px;
+      background: #fafbfc;
+      border-radius: 16px;
+      border: 1px solid #f0f1f3;
+      margin-top: 20px;
+    }
+    
+    body.member-theme .injector-time-slots {
+      background: #2a2a2a;
+      border-color: #444;
+    }
+    
+    .injector-time-slot {
+      background: #fff;
+      border: 2px solid #f0f1f3;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    
+    body.member-theme .injector-time-slot {
+      background: #333;
+      border-color: #555;
+      color: #fff;
+    }
+    
+    .injector-time-slot:hover {
+      border-color: #FFB89A;
+      transform: translateY(-2px);
+      box-shadow: 0 3px 10px rgba(255, 184, 154, 0.12);
+    }
+    
+    body.member-theme .injector-time-slot:hover {
+      border-color: #FFD700;
+      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.12);
+    }
+    
+    .slot-time {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+    
+    .slot-location {
+      font-size: 0.8rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    
+    body.member-theme .slot-location {
+      color: #999;
+    }
+    
+    .slot-location-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
     }
     
     /* Calendar-style Time Selection */
@@ -2193,6 +1253,30 @@
       }
     };
     
+    // Staff mapping for "Book By Staff" services
+    const STAFF_SERVICES_MAPPING = {
+      'Sivan': 'Book Any Service with Sivan',
+      'Hannah': 'Book Any Service with Hannah',
+      'Amber': 'Book Any Service with Amber',
+      'Sara': 'Book Any Service with Sara',
+      'Alyssa Lyons': 'Book Any Service with Alyssa Lyons',
+      'Macy': 'Book Any Service with Macy',
+      'Kaley': 'Book Any Service with Kaley',
+      'Paige': 'Book Any Service with Paige',
+      'Samantha': 'Book Any Service with Samantha',
+      'Felisha': 'Book Any Service with Felisha',
+      'Erica': 'Book Any Service with Erica',
+      'Kiki': 'Book Any Service with Kiki',
+      'Nick': 'Book Any Service with Nick',
+      'Michelle': 'Book Any Service with Michelle',
+      'Caitlin': 'Book Any Service with Caitlin',
+      'Emily': 'Book Any Service with Emily',
+      'Diamond': 'Book Any Service with Diamond',
+      'Brittany': 'Book with Master Esthetician Brittany',
+      'Julia': 'Book Any Service with Julia',
+      'Dr. Blinski': 'Any Treatment with Dr. Blinski'
+    };
+    
     // Mock membership data
     const mockMembershipData = {
       membershipType: Math.random() > 0.5 ? 'Injectable Club' : 'Skin Club',
@@ -2203,7 +1287,6 @@
     let conversationState = 'start';
     let clientType = null;
     let treatmentType = null;
-    let bookingFlow = null;
     let isMemberTheme = false;
     let selectedInjector = null;
     let selectedInjectorId = null;
@@ -2219,10 +1302,12 @@
     let currentCalendarDate = new Date();
     let calendarAvailability = {};
     let selectedDate = null;
-    let injectorLocations = []; // For injector availability view
-    let locationColors = {}; // Color mapping for locations
-    let visibleLocations = new Set(); // Which locations are currently visible
-    let injectorAvailabilityData = {}; // Availability data for injector view
+    
+    // Staff Schedule / Injector Availability variables
+    let injectorLocations = [];
+    let locationColors = {};
+    let visibleLocations = new Set();
+    let injectorAvailabilityData = {};
     
     console.log('State initialized');
     
@@ -2240,12 +1325,18 @@
       
       // Clear availability data
       calendarAvailability = {};
+      injectorAvailabilityData = {};
       
       // Reset calendar to current month
       currentCalendarDate = new Date();
       
       // Clear cart
       cartId = null;
+      
+      // Clear staff schedule variables
+      injectorLocations = [];
+      locationColors = {};
+      visibleLocations = new Set();
       
       console.log('🔄 Booking state reset');
     }
@@ -2333,14 +1424,10 @@
       resetBookingState();
       clientType = null;
       treatmentType = null;
-      bookingFlow = null;
       isMemberTheme = false;
       availableStaff = [];
       availableServices = [];
       clientInfo = {};
-      injectorLocations = [];
-      locationColors = {};
-      visibleLocations = new Set();
       
       // Reset theme
       initializeMemberTheme();
@@ -2554,25 +1641,25 @@
       skinButton.appendChild(skinTitle);
       skinButton.appendChild(skinDesc);
       
-      // See Staff Schedules button
-      const staffSchedulesButton = document.createElement('button');
-      staffSchedulesButton.className = 'client-type-button';
-      staffSchedulesButton.onclick = () => selectTreatmentType('injector-availability');
+      // Staff Schedule button (NEW)
+      const scheduleButton = document.createElement('button');
+      scheduleButton.className = 'client-type-button';
+      scheduleButton.onclick = () => selectTreatmentType('staff-schedule');
       
-      const staffSchedulesTitle = document.createElement('div');
-      staffSchedulesTitle.className = 'client-type-title';
-      staffSchedulesTitle.textContent = 'See Staff Schedules';
+      const scheduleTitle = document.createElement('div');
+      scheduleTitle.className = 'client-type-title';
+      scheduleTitle.textContent = 'See Staff Availability';
       
-      const staffSchedulesDesc = document.createElement('div');
-      staffSchedulesDesc.className = 'client-type-desc';
-      staffSchedulesDesc.textContent = 'View open slots for your preferred injector across all locations';
+      const scheduleDesc = document.createElement('div');
+      scheduleDesc.className = 'client-type-desc';
+      scheduleDesc.textContent = 'View your preferred provider\'s schedule across all locations';
       
-      staffSchedulesButton.appendChild(staffSchedulesTitle);
-      staffSchedulesButton.appendChild(staffSchedulesDesc);
+      scheduleButton.appendChild(scheduleTitle);
+      scheduleButton.appendChild(scheduleDesc);
       
       grid.appendChild(injectableButton);
       grid.appendChild(skinButton);
-      grid.appendChild(staffSchedulesButton);
+      grid.appendChild(scheduleButton);
       
       bubble.appendChild(grid);
       treatmentMessage.appendChild(bubble);
@@ -2586,147 +1673,937 @@
       
       treatmentType = type;
       
-      if (type === 'injectable') {
-        addMessage('user', 'Injectable Treatments');
-        addMessage('system', 'Great! For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
-          showInjectableBookingFlow();
-        });
-      } else if (type === 'skin') {
-        addMessage('user', 'Skin Treatments');
-        addMessage('system', 'Perfect! For skin treatments, would you like to book with a specific provider or choose a location first?', function() {
-          showSkinBookingFlow();
-        });
-      } else if (type === 'injector-availability') {
-        addMessage('user', 'See Staff Schedules');
-        addMessage('system', 'Perfect! Let me load our team of injectors and their availability...', function() {
+      if (type === 'staff-schedule') {
+        addMessage('user', 'See Staff Availability');
+        addMessage('system', 'Perfect! Let me load our team and their availability across all locations...', function() {
           loadInjectorsForAvailability();
         });
-      }
-    }
-    
-    function showInjectableBookingFlow() {
-      const container = document.getElementById('messages');
-      const flowMessage = document.createElement('div');
-      flowMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      
-      const grid = document.createElement('div');
-      grid.className = 'client-type-grid';
-      
-      // Book by injector
-      const injectorButton = document.createElement('button');
-      injectorButton.className = 'client-type-button';
-      injectorButton.onclick = () => selectBookingFlow('by-injector');
-      
-      const injectorTitle = document.createElement('div');
-      injectorTitle.className = 'client-type-title';
-      injectorTitle.textContent = 'Book by Injector';
-      
-      const injectorDesc = document.createElement('div');
-      injectorDesc.className = 'client-type-desc';
-      injectorDesc.textContent = 'Choose your preferred injector first';
-      
-      injectorButton.appendChild(injectorTitle);
-      injectorButton.appendChild(injectorDesc);
-      
-      // Book by location
-      const locationButton = document.createElement('button');
-      locationButton.className = 'client-type-button';
-      locationButton.onclick = () => selectBookingFlow('by-location');
-      
-      const locationTitle = document.createElement('div');
-      locationTitle.className = 'client-type-title';
-      locationTitle.textContent = 'Book by Location';
-      
-      const locationDesc = document.createElement('div');
-      locationDesc.className = 'client-type-desc';
-      locationDesc.textContent = 'Choose your preferred location first';
-      
-      locationButton.appendChild(locationTitle);
-      locationButton.appendChild(locationDesc);
-      
-      grid.appendChild(injectorButton);
-      grid.appendChild(locationButton);
-      
-      bubble.appendChild(grid);
-      flowMessage.appendChild(bubble);
-      container.appendChild(flowMessage);
-      scrollToBottom();
-    }
-    
-    function showSkinBookingFlow() {
-      const container = document.getElementById('messages');
-      const flowMessage = document.createElement('div');
-      flowMessage.className = 'message system';
-      
-      const bubble = document.createElement('div');
-      bubble.className = 'message-bubble';
-      
-      const grid = document.createElement('div');
-      grid.className = 'client-type-grid';
-      
-      // Book by provider
-      const providerButton = document.createElement('button');
-      providerButton.className = 'client-type-button';
-      providerButton.onclick = () => selectBookingFlow('by-injector');
-      
-      const providerTitle = document.createElement('div');
-      providerTitle.className = 'client-type-title';
-      providerTitle.textContent = 'Book by Provider';
-      
-      const providerDesc = document.createElement('div');
-      providerDesc.className = 'client-type-desc';
-      providerDesc.textContent = 'Choose your preferred provider first';
-      
-      providerButton.appendChild(providerTitle);
-      providerButton.appendChild(providerDesc);
-      
-      // Book by location
-      const locationButton = document.createElement('button');
-      locationButton.className = 'client-type-button';
-      locationButton.onclick = () => selectBookingFlow('by-location');
-      
-      const locationTitle = document.createElement('div');
-      locationTitle.className = 'client-type-title';
-      locationTitle.textContent = 'Book by Location';
-      
-      const locationDesc = document.createElement('div');
-      locationDesc.className = 'client-type-desc';
-      locationDesc.textContent = 'Choose your preferred location first';
-      
-      locationButton.appendChild(locationTitle);
-      locationButton.appendChild(locationDesc);
-      
-      grid.appendChild(providerButton);
-      grid.appendChild(locationButton);
-      
-      bubble.appendChild(grid);
-      flowMessage.appendChild(bubble);
-      container.appendChild(flowMessage);
-      scrollToBottom();
-    }
-    
-    function selectBookingFlow(flow) {
-      // Reset state when changing booking flow
-      resetBookingState();
-      
-      bookingFlow = flow;
-      addMessage('user', flow === 'by-injector' ? 
-        (treatmentType === 'skin' ? 'Book by Provider' : 'Book by Injector') : 
-        'Book by Location');
-      
-      if (flow === 'by-injector') {
-        const providerType = treatmentType === 'skin' ? 'providers' : 'injectors';
-        addMessage('system', `Let me show you our available ${providerType}...`, function() {
+      } else {
+        let treatmentText = type === 'injectable' ? 'Injectable Treatments' : 'Skin Treatments';
+        addMessage('user', treatmentText);
+        addMessage('system', 'Great! Let me show you our team of injectors...', function() {
           loadInjectors();
         });
+      }
+    }
+    
+    // NEW: Load injectors specifically for availability view
+    function loadInjectorsForAvailability() {
+      console.log('🔍 Loading injectors for availability view...');
+      
+      // Show loading state
+      const container = document.getElementById('messages');
+      const loadingMessage = document.createElement('div');
+      loadingMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = 'Loading our team of providers...';
+      
+      loadingMessage.appendChild(bubble);
+      container.appendChild(loadingMessage);
+      scrollToBottom();
+      
+      // Get all locations and their staff
+      const locationEntries = Object.entries(LOCATIONS_DATA);
+      console.log('🔍 Loading staff from all locations for availability view');
+      
+      const allStaffPromises = locationEntries.map(([locationName, locationData]) => {
+        const locationId = locationData.locationId.indexOf('urn:blvd:Location:') === 0 ? 
+          locationData.locationId : 'urn:blvd:Location:' + locationData.locationId;
+        
+        const query = `
+          mutation CreateTempCart($locationId: ID!) {
+            createCart(input: { locationId: $locationId }) {
+              cart {
+                id
+                availableCategories {
+                  name
+                  availableItems {
+                    id
+                    name
+                    ... on CartAvailableBookableItem {
+                      staffVariants {
+                        id
+                        staff {
+                          id
+                          firstName
+                          lastName
+                          nickname
+                          avatar
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `;
+        
+        return makeBoulevardRequest(query, { locationId: locationId })
+          .then(data => ({
+            locationName: locationName,
+            locationId: locationId,
+            cart: data.createCart.cart
+          }))
+          .catch(error => {
+            console.error('🔍 Failed to load from location:', locationName, error);
+            return { locationName: locationName, locationId: locationId, cart: null };
+          });
+      });
+      
+      Promise.all(allStaffPromises)
+        .then(responses => {
+          const staffMap = new Map();
+          
+          responses.forEach(response => {
+            if (!response.cart) return;
+            
+            const { locationName, cart } = response;
+            
+            if (cart.availableCategories) {
+              cart.availableCategories.forEach(category => {
+                if (category.availableItems) {
+                  category.availableItems.forEach(item => {
+                    if (item.staffVariants && item.staffVariants.length > 0) {
+                      item.staffVariants.forEach(variant => {
+                        if (variant.staff) {
+                          if (!staffMap.has(variant.staff.id)) {
+                            staffMap.set(variant.staff.id, {
+                              id: variant.staff.id,
+                              firstName: variant.staff.firstName,
+                              lastName: variant.staff.lastName,
+                              nickname: variant.staff.nickname,
+                              avatar: variant.staff.avatar ? { url: variant.staff.avatar } : null,
+                              locations: [locationName]
+                            });
+                          } else {
+                            const staff = staffMap.get(variant.staff.id);
+                            if (!staff.locations.includes(locationName)) {
+                              staff.locations.push(locationName);
+                            }
+                          }
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          });
+          
+          const staffList = Array.from(staffMap.values());
+          
+          if (staffList.length > 0) {
+            console.log('✅ Successfully loaded staff for availability view:', staffList);
+            availableStaff = staffList;
+            assignLocationColors(staffList);
+            showInjectorsForAvailability();
+          } else {
+            console.log('❌ No staff found, using mock data');
+            loadMockStaffForAvailability();
+          }
+        })
+        .catch(error => {
+          console.error('❌ Failed to load staff:', error);
+          loadMockStaffForAvailability();
+        });
+    }
+    
+    function loadMockStaffForAvailability() {
+      const mockStaff = [
+        { id: 'staff1', firstName: 'Sivan', lastName: '', avatar: null, locations: ['West Village', 'SoHo'] },
+        { id: 'staff2', firstName: 'Hannah', lastName: '', avatar: null, locations: ['Tribeca', 'Williamsburg'] },
+        { id: 'staff3', firstName: 'Amber', lastName: '', avatar: null, locations: ['Hoboken', 'Uptown'] },
+        { id: 'staff4', firstName: 'Sara', lastName: '', avatar: null, locations: ['Miami', 'West Village'] },
+        { id: 'staff5', firstName: 'Alyssa', lastName: 'Lyons', avatar: null, locations: ['SoHo', 'Tribeca'] },
+        { id: 'staff6', firstName: 'Macy', lastName: '', avatar: null, locations: ['Williamsburg', 'Hoboken'] },
+        { id: 'staff7', firstName: 'Kaley', lastName: '', avatar: null, locations: ['Uptown', 'Miami'] },
+        { id: 'staff8', firstName: 'Paige', lastName: '', avatar: null, locations: ['West Village', 'Tribeca', 'SoHo'] },
+        { id: 'staff9', firstName: 'Samantha', lastName: '', avatar: null, locations: ['Williamsburg', 'Uptown'] },
+        { id: 'staff10', firstName: 'Felisha', lastName: '', avatar: null, locations: ['Hoboken', 'Miami'] },
+        { id: 'staff11', firstName: 'Erica', lastName: '', avatar: null, locations: ['West Village', 'SoHo'] },
+        { id: 'staff12', firstName: 'Kiki', lastName: '', avatar: null, locations: ['Tribeca', 'Williamsburg'] },
+        { id: 'staff13', firstName: 'Nick', lastName: '', avatar: null, locations: ['Hoboken', 'Uptown'] },
+        { id: 'staff14', firstName: 'Michelle', lastName: '', avatar: null, locations: ['Miami', 'West Village'] },
+        { id: 'staff15', firstName: 'Caitlin', lastName: '', avatar: null, locations: ['SoHo', 'Tribeca'] },
+        { id: 'staff16', firstName: 'Emily', lastName: '', avatar: null, locations: ['Williamsburg', 'Hoboken'] },
+        { id: 'staff17', firstName: 'Diamond', lastName: '', avatar: null, locations: ['Uptown', 'Miami'] },
+        { id: 'staff18', firstName: 'Brittany', lastName: '', avatar: null, locations: ['West Village', 'SoHo'] },
+        { id: 'staff19', firstName: 'Julia', lastName: '', avatar: null, locations: ['Tribeca', 'Williamsburg'] },
+        { id: 'staff20', firstName: 'Dr.', lastName: 'Blinski', avatar: null, locations: ['Miami', 'West Village'] }
+      ];
+      
+      availableStaff = mockStaff;
+      assignLocationColors(mockStaff);
+      showInjectorsForAvailability();
+    }
+    
+    function assignLocationColors(staffList) {
+      const colors = ['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#5856D6', '#AF52DE', '#FF2D92', '#64D2FF'];
+      const allLocations = new Set();
+      
+      staffList.forEach(staff => {
+        staff.locations.forEach(location => allLocations.add(location));
+      });
+      
+      const locationArray = Array.from(allLocations);
+      locationColors = {};
+      
+      locationArray.forEach((location, index) => {
+        locationColors[location] = colors[index % colors.length];
+      });
+      
+      console.log('🎨 Assigned location colors:', locationColors);
+    }
+    
+    function showInjectorsForAvailability() {
+      console.log('🎨 Showing injectors for availability view');
+      
+      // Remove loading message
+      const messages = document.querySelectorAll('.message');
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.textContent.includes('Loading our team')) {
+        lastMessage.remove();
+      }
+      
+      const container = document.getElementById('messages');
+      const injectorsMessage = document.createElement('div');
+      injectorsMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.innerHTML = 'Select a provider to view their availability across all locations:';
+      
+      const injectorContainer = document.createElement('div');
+      injectorContainer.className = 'injector-container';
+      
+      const injectorList = document.createElement('div');
+      injectorList.className = 'injector-list';
+      
+      // Show individual injectors
+      availableStaff.forEach((staff, index) => {
+        const item = document.createElement('div');
+        item.className = 'injector-item';
+        item.onclick = () => selectInjectorForAvailability(staff);
+        
+        const photo = document.createElement('div');
+        photo.className = 'injector-photo';
+        if (staff.avatar && staff.avatar.url) {
+          photo.style.backgroundImage = `url(${staff.avatar.url})`;
+        }
+        
+        const name = document.createElement('div');
+        name.className = 'injector-name';
+        const fullName = staff.lastName ? `${staff.firstName} ${staff.lastName}` : staff.firstName;
+        name.textContent = fullName;
+        
+        // Add location info
+        const locations = document.createElement('div');
+        locations.style.fontSize = '0.8rem';
+        locations.style.color = isMemberTheme ? '#999' : '#86868b';
+        locations.style.marginTop = '4px';
+        locations.textContent = staff.locations.join(', ');
+        
+        const info = document.createElement('div');
+        info.style.flex = '1';
+        info.appendChild(name);
+        info.appendChild(locations);
+        
+        item.appendChild(photo);
+        item.appendChild(info);
+        
+        injectorList.appendChild(item);
+      });
+      
+      injectorContainer.appendChild(injectorList);
+      bubble.appendChild(injectorContainer);
+      
+      injectorsMessage.appendChild(bubble);
+      container.appendChild(injectorsMessage);
+      scrollToBottom();
+    }
+    
+    function selectInjectorForAvailability(staff) {
+      resetBookingState(); // Reset when selecting injector
+      
+      const fullName = staff.lastName ? `${staff.firstName} ${staff.lastName}` : staff.firstName;
+      selectedInjector = fullName;
+      selectedInjectorId = staff.id;
+      injectorLocations = staff.locations;
+      
+      // Initialize all locations as visible
+      visibleLocations = new Set(staff.locations);
+      
+      addMessage('user', selectedInjector);
+      
+      // Check if staff member has a corresponding "Book By Staff" service
+      const staffService = STAFF_SERVICES_MAPPING[fullName];
+      if (staffService) {
+        addMessage('system', `Perfect! Loading ${selectedInjector}'s availability across all locations...`, function() {
+          loadInjectorAvailabilityAcrossLocations();
+        });
       } else {
-        addMessage('system', 'Please select your preferred location:', function() {
-          showLocationSelection();
+        addMessage('system', `Perfect! Loading ${selectedInjector}'s availability across all locations...`, function() {
+          loadInjectorAvailabilityAcrossLocations();
         });
       }
+    }
+    
+    function loadInjectorAvailabilityAcrossLocations() {
+      console.log('🔍 Loading availability for injector across all locations');
+      
+      const promises = injectorLocations.map(locationName => {
+        return loadInjectorAvailabilityForLocation(locationName);
+      });
+      
+      Promise.all(promises)
+        .then(() => {
+          console.log('✅ Loaded availability for all locations');
+          showInjectorAvailabilityCalendar();
+        })
+        .catch(error => {
+          console.error('❌ Failed to load availability:', error);
+          showErrorMessage('Unable to load availability. Please try again or contact us.');
+        });
+    }
+    
+    function loadInjectorAvailabilityForLocation(locationName) {
+      const locationData = LOCATIONS_DATA[locationName];
+      if (!locationData) {
+        console.error('Location not found:', locationName);
+        return Promise.resolve();
+      }
+      
+      const locationId = locationData.locationId.indexOf('urn:blvd:Location:') === 0 ? 
+        locationData.locationId : 'urn:blvd:Location:' + locationData.locationId;
+      
+      console.log(`🔍 Loading availability for ${locationName}`);
+      
+      // Create a temporary cart for this location
+      const createCartQuery = `
+        mutation CreateTempCart($locationId: ID!) {
+          createCart(input: { locationId: $locationId }) {
+            cart {
+              id
+              availableCategories {
+                availableItems {
+                  id
+                  name
+                  ... on CartAvailableBookableItem {
+                    staffVariants {
+                      id
+                      staff {
+                        id
+                        firstName
+                        lastName
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      
+      return makeBoulevardRequest(createCartQuery, { locationId: locationId })
+        .then(data => {
+          const cart = data.createCart.cart;
+          
+          // Find a service that this injector can perform
+          let selectedServiceId = null;
+          let selectedStaffVariantId = null;
+          
+          for (const category of cart.availableCategories) {
+            for (const item of category.availableItems) {
+              if (item.staffVariants) {
+                const staffVariant = item.staffVariants.find(variant => 
+                  variant.staff && variant.staff.id === selectedInjectorId
+                );
+                if (staffVariant) {
+                  selectedServiceId = item.id;
+                  selectedStaffVariantId = staffVariant.id;
+                  break;
+                }
+              }
+            }
+            if (selectedServiceId) break;
+          }
+          
+          if (!selectedServiceId) {
+            console.log(`No services found for injector at ${locationName}`);
+            return;
+          }
+          
+          // Add service to cart
+          const addServiceQuery = `
+            mutation AddCartItem($cartId: ID!, $itemId: ID!, $itemStaffVariantId: ID!) {
+              addCartSelectedBookableItem(input: {
+                id: $cartId,
+                itemId: $itemId,
+                itemStaffVariantId: $itemStaffVariantId
+              }) {
+                cart {
+                  id
+                }
+              }
+            }
+          `;
+          
+          return makeBoulevardRequest(addServiceQuery, {
+            cartId: cart.id,
+            itemId: selectedServiceId,
+            itemStaffVariantId: selectedStaffVariantId
+          }).then(() => {
+            // Load availability for the next 30 days
+            const promises = [];
+            const today = new Date();
+            
+            for (let i = 0; i < 30; i++) {
+              const date = new Date(today);
+              date.setDate(date.getDate() + i);
+              promises.push(loadAvailabilityForInjectorDate(cart.id, date, locationName));
+            }
+            
+            return Promise.all(promises);
+          });
+        })
+        .catch(error => {
+          console.error(`Failed to load availability for ${locationName}:`, error);
+        });
+    }
+    
+    function loadAvailabilityForInjectorDate(cartId, date, locationName) {
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const query = `
+        query GetCartBookableTimes($cartId: ID!, $searchDate: Date!) {
+          cartBookableTimes(
+            id: $cartId,
+            searchDate: $searchDate,
+            tz: "America/New_York"
+          ) {
+            id
+            startTime
+          }
+        }
+      `;
+      
+      return makeBoulevardRequest(query, { 
+        cartId: cartId, 
+        searchDate: dateStr 
+      })
+        .then(data => {
+          const times = data.cartBookableTimes || [];
+          
+          if (!injectorAvailabilityData[dateStr]) {
+            injectorAvailabilityData[dateStr] = {};
+          }
+          
+          injectorAvailabilityData[dateStr][locationName] = times;
+          return times;
+        })
+        .catch(error => {
+          console.error('Failed to load availability for', dateStr, locationName, error);
+          if (!injectorAvailabilityData[dateStr]) {
+            injectorAvailabilityData[dateStr] = {};
+          }
+          injectorAvailabilityData[dateStr][locationName] = [];
+          return [];
+        });
+    }
+    
+    function showInjectorAvailabilityCalendar() {
+      const container = document.getElementById('messages');
+      const calendarMessage = document.createElement('div');
+      calendarMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      
+      // Location legend and toggle
+      const legend = document.createElement('div');
+      legend.className = 'location-legend';
+      
+      const legendTitle = document.createElement('div');
+      legendTitle.className = 'legend-title';
+      legendTitle.textContent = 'Locations (click to toggle):';
+      
+      const legendItems = document.createElement('div');
+      legendItems.className = 'legend-items';
+      
+      injectorLocations.forEach(locationName => {
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        if (!visibleLocations.has(locationName)) {
+          legendItem.classList.add('inactive');
+        }
+        
+        legendItem.onclick = () => toggleLocationVisibility(locationName);
+        
+        const colorDiv = document.createElement('div');
+        colorDiv.className = 'legend-color';
+        colorDiv.style.backgroundColor = locationColors[locationName];
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.textContent = locationName;
+        
+        legendItem.appendChild(colorDiv);
+        legendItem.appendChild(nameDiv);
+        legendItems.appendChild(legendItem);
+      });
+      
+      legend.appendChild(legendTitle);
+      legend.appendChild(legendItems);
+      
+      // Calendar container
+      const availabilityContainer = document.createElement('div');
+      availabilityContainer.className = 'availability-container';
+      availabilityContainer.id = 'injector-availability-container';
+      
+      bubble.appendChild(legend);
+      bubble.appendChild(availabilityContainer);
+      
+      // Add "Book with this staff member" button
+      const staffService = STAFF_SERVICES_MAPPING[selectedInjector];
+      if (staffService) {
+        const bookButton = document.createElement('button');
+        bookButton.className = 'primary-button';
+        bookButton.textContent = `Book Appointment with ${selectedInjector}`;
+        bookButton.style.marginTop = '20px';
+        bookButton.onclick = () => {
+          // Redirect to the specific staff booking service
+          addMessage('user', `Book Appointment with ${selectedInjector}`);
+          addMessage('system', `Great! I'll connect you to ${staffService}. This will take you to their dedicated booking page...`, function() {
+            // Here you would typically redirect or integrate with the staff-specific booking system
+            showStaffBookingRedirect(staffService);
+          });
+        };
+        bubble.appendChild(bookButton);
+      }
+      
+      calendarMessage.appendChild(bubble);
+      container.appendChild(calendarMessage);
+      scrollToBottom();
+      
+      renderInjectorAvailabilityCalendar();
+    }
+    
+    function showStaffBookingRedirect(staffService) {
+      addMessage('system', `You can now proceed to book with this specific provider using their dedicated booking system: "${staffService}". This ensures you get their earliest available appointment across all locations where they work.`);
+      
+      // Add option to restart or contact
+      const container = document.getElementById('messages');
+      const optionsMessage = document.createElement('div');
+      optionsMessage.className = 'message system';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      
+      const restartButton = document.createElement('button');
+      restartButton.className = 'primary-button';
+      restartButton.textContent = 'Start New Booking';
+      restartButton.onclick = restartChat;
+      
+      const contactButton = document.createElement('button');
+      contactButton.className = 'secondary-button';
+      contactButton.textContent = 'Contact Us for Help';
+      contactButton.onclick = () => openSMS('staff-booking-help');
+      
+      bubble.appendChild(restartButton);
+      bubble.appendChild(contactButton);
+      
+      optionsMessage.appendChild(bubble);
+      container.appendChild(optionsMessage);
+      scrollToBottom();
+    }
+    
+    function toggleLocationVisibility(locationName) {
+      if (visibleLocations.has(locationName)) {
+        visibleLocations.delete(locationName);
+      } else {
+        visibleLocations.add(locationName);
+      }
+      
+      // Update legend items
+      const legendItems = document.querySelectorAll('.legend-item');
+      legendItems.forEach(item => {
+        const locationText = item.textContent;
+        if (locationText === locationName) {
+          if (visibleLocations.has(locationName)) {
+            item.classList.remove('inactive');
+          } else {
+            item.classList.add('inactive');
+          }
+        }
+      });
+      
+      // Re-render calendar
+      renderInjectorAvailabilityCalendar();
+    }
+    
+    function renderInjectorAvailabilityCalendar() {
+      const container = document.getElementById('injector-availability-container');
+      container.innerHTML = '';
+      
+      // Calendar header
+      const calendarHeader = document.createElement('div');
+      calendarHeader.className = 'calendar-header';
+      
+      const calendarTitle = document.createElement('div');
+      calendarTitle.className = 'calendar-title';
+      calendarTitle.textContent = `${selectedInjector}'s Availability`;
+      
+      calendarHeader.appendChild(calendarTitle);
+      
+      // Calendar container with scroll
+      const calendarContainer = document.createElement('div');
+      calendarContainer.className = 'calendar-container';
+      
+      // Calendar grid
+      const calendarGrid = document.createElement('div');
+      calendarGrid.className = 'calendar-grid';
+      
+      // Day headers
+      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      dayHeaders.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-day-header';
+        dayHeader.textContent = day;
+        calendarGrid.appendChild(dayHeader);
+      });
+      
+      // Generate calendar for current month
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      
+      // Add empty cells for days before the first day of the month
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day disabled';
+        calendarGrid.appendChild(emptyDay);
+      }
+      
+      // Add days of the month
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day injector-calendar-day';
+        
+        // Check if day is in the past
+        if (date < today) {
+          dayElement.classList.add('disabled');
+        } else {
+          dayElement.onclick = () => selectInjectorDate(date);
+        }
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = day;
+        
+        const slotsContainer = document.createElement('div');
+        slotsContainer.className = 'calendar-slots';
+        
+        // Add slot indicators for visible locations
+        const dayData = injectorAvailabilityData[dateStr];
+        if (dayData) {
+          let hasSlots = false;
+          
+          Object.keys(dayData).forEach(locationName => {
+            if (!visibleLocations.has(locationName)) return;
+            
+            const slots = dayData[locationName];
+            if (slots && slots.length > 0) {
+              hasSlots = true;
+              
+              // Show up to 3 slot indicators per location
+              const slotsToShow = Math.min(3, slots.length);
+              for (let i = 0; i < slotsToShow; i++) {
+                const slotIndicator = document.createElement('div');
+                slotIndicator.className = 'slot-indicator';
+                slotIndicator.style.backgroundColor = locationColors[locationName];
+                slotIndicator.title = `${locationName} - ${slots.length} slot${slots.length > 1 ? 's' : ''}`;
+                slotsContainer.appendChild(slotIndicator);
+              }
+            }
+          });
+          
+          if (hasSlots) {
+            dayElement.classList.add('has-availability');
+          }
+        }
+        
+        dayElement.appendChild(dayNumber);
+        dayElement.appendChild(slotsContainer);
+        calendarGrid.appendChild(dayElement);
+      }
+      
+      calendarContainer.appendChild(calendarGrid);
+      
+      container.appendChild(calendarHeader);
+      container.appendChild(calendarContainer);
+      
+      // Time slots container (initially hidden)
+      const timeSlotsContainer = document.createElement('div');
+      timeSlotsContainer.className = 'injector-time-slots';
+      timeSlotsContainer.id = 'injector-time-slots-container';
+      timeSlotsContainer.style.display = 'none';
+      container.appendChild(timeSlotsContainer);
+    }
+    
+    function selectInjectorDate(date) {
+      selectedDate = date;
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Update selected state in calendar
+      document.querySelectorAll('.injector-calendar-day').forEach(day => {
+        day.classList.remove('selected');
+      });
+      
+      // Find and select the clicked day
+      const dayElements = document.querySelectorAll('.injector-calendar-day');
+      dayElements.forEach(dayElement => {
+        const dayNumber = dayElement.querySelector('.day-number');
+        if (dayNumber && parseInt(dayNumber.textContent) === date.getDate()) {
+          dayElement.classList.add('selected');
+        }
+      });
+      
+      showInjectorTimeSlotsForDate(date);
+    }
+    
+    function showInjectorTimeSlotsForDate(date) {
+      const dateStr = date.toISOString().split('T')[0];
+      const dayData = injectorAvailabilityData[dateStr];
+      
+      const timeSlotsContainer = document.getElementById('injector-time-slots-container');
+      timeSlotsContainer.innerHTML = '';
+      
+      if (!dayData) {
+        timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No availability data for this date</p>';
+        timeSlotsContainer.style.display = 'block';
+        return;
+      }
+      
+      const allSlots = [];
+      
+      // Collect all slots from visible locations
+      Object.keys(dayData).forEach(locationName => {
+        if (!visibleLocations.has(locationName)) return;
+        
+        const slots = dayData[locationName] || [];
+        slots.forEach(slot => {
+          allSlots.push({
+            ...slot,
+            locationName: locationName,
+            color: locationColors[locationName]
+          });
+        });
+      });
+      
+      if (allSlots.length === 0) {
+        timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No available times for this date</p>';
+      } else {
+        // Sort slots by time
+        allSlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        
+        allSlots.forEach(slot => {
+          const startTime = new Date(slot.startTime);
+          const timeStr = startTime.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+          
+          const timeSlot = document.createElement('div');
+          timeSlot.className = 'injector-time-slot';
+          timeSlot.onclick = () => selectInjectorTimeSlot(slot, timeStr, date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          }));
+          
+          const timeDiv = document.createElement('div');
+          timeDiv.className = 'slot-time';
+          timeDiv.textContent = timeStr;
+          
+          const locationDiv = document.createElement('div');
+          locationDiv.className = 'slot-location';
+          
+          const colorDiv = document.createElement('div');
+          colorDiv.className = 'slot-location-color';
+          colorDiv.style.backgroundColor = slot.color;
+          
+          const nameDiv = document.createElement('div');
+          nameDiv.textContent = slot.locationName;
+          
+          locationDiv.appendChild(colorDiv);
+          locationDiv.appendChild(nameDiv);
+          
+          timeSlot.appendChild(timeDiv);
+          timeSlot.appendChild(locationDiv);
+          
+          timeSlotsContainer.appendChild(timeSlot);
+        });
+      }
+      
+      timeSlotsContainer.style.display = 'block';
+      scrollToBottom();
+    }
+    
+    function selectInjectorTimeSlot(slot, timeStr, dateStr) {
+      selectedTime = { id: slot.id, time: timeStr, date: dateStr, startTime: slot.startTime };
+      selectedLocation = slot.locationName;
+      selectedLocationId = LOCATIONS_DATA[slot.locationName].locationId;
+      
+      addMessage('user', `${dateStr} at ${timeStr} - ${slot.locationName}`);
+      
+      // Check if staff member has a corresponding "Book By Staff" service
+      const staffService = STAFF_SERVICES_MAPPING[selectedInjector];
+      if (staffService) {
+        addMessage('system', `Perfect! I'll connect you to ${staffService} for this specific time slot: ${dateStr} at ${timeStr} at ${slot.locationName}.`, function() {
+          showStaffBookingRedirect(staffService);
+        });
+      } else {
+        addMessage('system', `Perfect! I've noted your appointment with ${selectedInjector} at ${slot.locationName} on ${dateStr} at ${timeStr}. Let me prepare your booking...`, function() {
+          createCartForInjectorBooking();
+        });
+      }
+    }
+    
+    function createCartForInjectorBooking() {
+      console.log('🎯 Creating cart for injector booking at', selectedLocation);
+      
+      const formattedLocationId = selectedLocationId.indexOf('urn:blvd:Location:') === 0 ? 
+        selectedLocationId : 'urn:blvd:Location:' + selectedLocationId;
+      
+      const query = `
+        mutation CreateCart($locationId: ID!) {
+          createCart(input: { locationId: $locationId }) {
+            cart {
+              id
+              availableCategories {
+                availableItems {
+                  id
+                  name
+                  ... on CartAvailableBookableItem {
+                    staffVariants {
+                      id
+                      staff {
+                        id
+                        firstName
+                        lastName
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      
+      makeBoulevardRequest(query, { locationId: formattedLocationId })
+        .then(data => {
+          const cart = data.createCart.cart;
+          cartId = cart.id;
+          
+          // Find a service this injector can perform
+          let foundService = false;
+          for (const category of cart.availableCategories) {
+            for (const item of category.availableItems) {
+              if (item.staffVariants) {
+                const staffVariant = item.staffVariants.find(variant => 
+                  variant.staff && variant.staff.id === selectedInjectorId
+                );
+                if (staffVariant) {
+                  // Use the first available service
+                  selectedService = item.name;
+                  selectedServiceId = item.id;
+                  
+                  // Add service to cart and continue
+                  return addInjectorServiceToCart(staffVariant.id);
+                }
+              }
+            }
+          }
+          
+          if (!foundService) {
+            throw new Error('No services found for this injector at this location');
+          }
+        })
+        .catch(error => {
+          console.error('Failed to create cart for injector booking:', error);
+          showErrorMessage('Unable to prepare booking. Please try again or contact us.');
+        });
+    }
+    
+    function addInjectorServiceToCart(staffVariantId) {
+      const mutation = `
+        mutation AddCartItem($cartId: ID!, $itemId: ID!, $itemStaffVariantId: ID!) {
+          addCartSelectedBookableItem(input: {
+            id: $cartId,
+            itemId: $itemId,
+            itemStaffVariantId: $itemStaffVariantId
+          }) {
+            cart {
+              id
+            }
+          }
+        }
+      `;
+      
+      return makeBoulevardRequest(mutation, {
+        cartId: cartId,
+        itemId: selectedServiceId,
+        itemStaffVariantId: staffVariantId
+      })
+        .then(() => {
+          console.log('Service added to cart for injector booking');
+          reserveInjectorTimeSlot();
+        })
+        .catch(error => {
+          console.error('Failed to add service for injector booking:', error);
+          showErrorMessage('Unable to add service. Please try again or contact us.');
+        });
+    }
+    
+    function reserveInjectorTimeSlot() {
+      console.log('🔒 Reserving injector time slot:', selectedTime.id);
+      
+      const mutation = `
+        mutation ReserveCartBookableItems($cartId: ID!, $bookableTimeId: ID!) {
+          reserveCartBookableItems(input: {
+            id: $cartId,
+            bookableTimeId: $bookableTimeId
+          }) {
+            cart {
+              id
+            }
+          }
+        }
+      `;
+      
+      makeBoulevardRequest(mutation, {
+        cartId: cartId,
+        bookableTimeId: selectedTime.id
+      })
+        .then(data => {
+          console.log('✅ Injector time slot reserved successfully');
+          addMessage('system', `Excellent! I've reserved your time slot with ${selectedInjector}. Now I need your contact information to complete your booking...`);
+          showClientInfoForm();
+        })
+        .catch(error => {
+          console.error('❌ Failed to reserve injector time slot:', error);
+          addMessage('system', `I'm sorry, that time slot is no longer available. Please choose a different time.`);
+          showErrorMessage('Time slot is no longer available. Please select a different time.');
+        });
     }
     
     function loadInjectors() {
@@ -2890,86 +2767,16 @@
       console.log('Using enhanced mock staff data with more comprehensive team');
       
       const mockStaff = [
-        {
-          id: 'staff1',
-          firstName: 'Sarah',
-          lastName: 'Johnson',
-          role: { name: 'Senior Injector' },
-          avatar: null,
-          locations: ['West Village', 'SoHo']
-        },
-        {
-          id: 'staff2',
-          firstName: 'Michael',
-          lastName: 'Chen',
-          role: { name: 'Lead Aesthetician' },
-          avatar: null,
-          locations: ['Tribeca', 'Williamsburg']
-        },
-        {
-          id: 'staff3',
-          firstName: 'Emily',
-          lastName: 'Rodriguez',
-          role: { name: 'Injector' },
-          avatar: null,
-          locations: ['Hoboken', 'Uptown']
-        },
-        {
-          id: 'staff4',
-          firstName: 'David',
-          lastName: 'Thompson',
-          role: { name: 'Medical Director' },
-          avatar: null,
-          locations: ['Miami', 'West Village']
-        },
-        {
-          id: 'staff5',
-          firstName: 'Jessica',
-          lastName: 'Martinez',
-          role: { name: 'Senior Injector' },
-          avatar: null,
-          locations: ['SoHo', 'Tribeca']
-        },
-        {
-          id: 'staff6',
-          firstName: 'Alex',
-          lastName: 'Kim',
-          role: { name: 'Aesthetic Nurse' },
-          avatar: null,
-          locations: ['Williamsburg', 'Hoboken']
-        },
-        {
-          id: 'staff7',
-          firstName: 'Rachel',
-          lastName: 'Davis',
-          role: { name: 'Injector' },
-          avatar: null,
-          locations: ['Uptown', 'Miami']
-        },
-        {
-          id: 'staff8',
-          firstName: 'Marcus',
-          lastName: 'Wilson',
-          role: { name: 'Lead Injector' },
-          avatar: null,
-          locations: ['West Village', 'Tribeca', 'SoHo']
-        },
-        {
-          id: 'staff9',
-          firstName: 'Lisa',
-          lastName: 'Brown',
-          role: { name: 'Aesthetic Specialist' },
-          avatar: null,
-          locations: ['Williamsburg', 'Uptown']
-        },
-        {
-          id: 'staff10',
-          firstName: 'James',
-          lastName: 'Garcia',
-          role: { name: 'Senior Aesthetician' },
-          avatar: null,
-          locations: ['Hoboken', 'Miami']
-        }
+        { id: 'staff1', firstName: 'Sivan', lastName: '', role: { name: 'Senior Injector' }, avatar: null, locations: ['West Village', 'SoHo'] },
+        { id: 'staff2', firstName: 'Hannah', lastName: '', role: { name: 'Lead Aesthetician' }, avatar: null, locations: ['Tribeca', 'Williamsburg'] },
+        { id: 'staff3', firstName: 'Amber', lastName: '', role: { name: 'Injector' }, avatar: null, locations: ['Hoboken', 'Uptown'] },
+        { id: 'staff4', firstName: 'Sara', lastName: '', role: { name: 'Medical Director' }, avatar: null, locations: ['Miami', 'West Village'] },
+        { id: 'staff5', firstName: 'Alyssa', lastName: 'Lyons', role: { name: 'Senior Injector' }, avatar: null, locations: ['SoHo', 'Tribeca'] },
+        { id: 'staff6', firstName: 'Macy', lastName: '', role: { name: 'Aesthetic Nurse' }, avatar: null, locations: ['Williamsburg', 'Hoboken'] },
+        { id: 'staff7', firstName: 'Kaley', lastName: '', role: { name: 'Injector' }, avatar: null, locations: ['Uptown', 'Miami'] },
+        { id: 'staff8', firstName: 'Paige', lastName: '', role: { name: 'Lead Injector' }, avatar: null, locations: ['West Village', 'Tribeca', 'SoHo'] },
+        { id: 'staff9', firstName: 'Samantha', lastName: '', role: { name: 'Aesthetic Specialist' }, avatar: null, locations: ['Williamsburg', 'Uptown'] },
+        { id: 'staff10', firstName: 'Felisha', lastName: '', role: { name: 'Senior Aesthetician' }, avatar: null, locations: ['Hoboken', 'Miami'] }
       ];
       
       availableStaff = mockStaff;
@@ -3016,7 +2823,8 @@
         
         const item = document.createElement('div');
         item.className = 'injector-item';
-        item.onclick = () => selectInjector(staff.id, staff.firstName + ' ' + staff.lastName);
+        const fullName = staff.lastName ? `${staff.firstName} ${staff.lastName}` : staff.firstName;
+        item.onclick = () => selectInjector(staff.id, fullName);
         
         const photo = document.createElement('div');
         photo.className = 'injector-photo';
@@ -3026,7 +2834,7 @@
         
         const name = document.createElement('div');
         name.className = 'injector-name';
-        name.textContent = staff.firstName + ' ' + staff.lastName;
+        name.textContent = fullName;
         
         item.appendChild(photo);
         item.appendChild(name);
@@ -3982,6 +3790,8 @@
         message = 'I\'m looking for a specific injector that wasn\'t listed';
       } else if (context === 'time-inquiry') {
         message = `I'm looking for ${selectedService} at ${selectedLocation} but need different time options`;
+      } else if (context === 'staff-booking-help') {
+        message = `I need help booking with ${selectedInjector}`;
       }
       
       message += ".";
@@ -4001,7 +3811,7 @@
       }, 100);
     }
     
-    console.log('✅ Script fully loaded with updated flow');
+    console.log('✅ Script fully loaded with staff schedule integration');
   </script>
 </body>
 </html>
