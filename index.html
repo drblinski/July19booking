@@ -953,41 +953,77 @@
     
     // Boulevard API helper - Updated to use proxy route
     function makeBoulevardRequest(query, variables = {}) {
-      console.log('🔥 Making Boulevard request:', { query: query.substring(0, 100) + '...', variables });
-      
-      return fetch(BOULEVARD_CONFIG.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-          // Removed Authorization header - proxy will handle authentication
-        },
-        body: JSON.stringify({
-          query: query,
-          variables: variables
-        })
-      })
-      .then(response => {
-        console.log('🔥 Boulevard response status:', response.status);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('🔥 Boulevard response data:', data);
-        if (data.errors && data.errors.length > 0) {
-          console.error('🔥 Boulevard GraphQL errors:', data.errors);
-          throw new Error(`GraphQL Error: ${data.errors[0].message}`);
-        }
-        return data.data;
-      })
-      .catch(error => {
-        console.error('🔥 Boulevard request failed:', error);
-        throw error;
-      });
+  console.log('🔥 Making Boulevard request:', { 
+    query: query.substring(0, 100) + '...', 
+    variables 
+  });
+  
+  return fetch(BOULEVARD_CONFIG.apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      query: query,
+      variables: variables
+    })
+  })
+  .then(response => {
+    console.log('🔥 Boulevard response status:', response.status);
+    
+    // Handle different HTTP status codes
+    if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Please wait a moment and try again.');
     }
     
+    if (response.status === 500) {
+      throw new Error('Server error. Please try again or contact support.');
+    }
+    
+    if (response.status === 503) {
+      throw new Error('Service temporarily unavailable. Please try again in a few minutes.');
+    }
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return response.json();
+  })
+  .then(data => {
+    console.log('🔥 Boulevard response data:', data);
+    
+    if (data.errors && data.errors.length > 0) {
+      console.error('🔥 Boulevard GraphQL errors:', data.errors);
+      
+      // Handle specific GraphQL error types
+      const error = data.errors[0];
+      if (error.message.includes('permission') || error.message.includes('unauthorized')) {
+        throw new Error('Authentication error. Please refresh the page and try again.');
+      }
+      
+      if (error.message.includes('validation')) {
+        throw new Error('Invalid request. Please check your information and try again.');
+      }
+      
+      throw new Error(`API Error: ${error.message}`);
+    }
+    
+    return data.data;
+  })
+  .catch(error => {
+    console.error('🔥 Boulevard request failed:', error);
+    
+    // Handle network errors
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('Network error. Please check your connection and try again.');
+    }
+    
+    // Re-throw the error to be handled by the calling function
+    throw error;
+  });
+}
     // Debug function to check what fields BookingCompleteInput expects
     function debugBookingCompleteSchema() {
       console.log('🔍 Debugging BookingCompleteInput schema...');
@@ -2937,7 +2973,6 @@ function renderMultiLocationCalendar() {
   const container = document.getElementById('multi-location-availability-container');
   container.innerHTML = '';
   
-  // Use the same calendar structure as injector availability
   // Calendar header
   const calendarHeader = document.createElement('div');
   calendarHeader.className = 'calendar-header';
@@ -2961,11 +2996,212 @@ function renderMultiLocationCalendar() {
   calendarHeader.appendChild(calendarTitle);
   calendarHeader.appendChild(nextButton);
   
-  // Rest of calendar implementation (similar to injector availability)
-  // ... (calendar grid, days, etc.)
+  // Calendar grid
+  const calendarGrid = document.createElement('div');
+  calendarGrid.className = 'calendar-grid';
+  
+  // Day headers
+  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  dayHeaders.forEach(day => {
+    const dayHeader = document.createElement('div');
+    dayHeader.className = 'calendar-day-header';
+    dayHeader.textContent = day;
+    calendarGrid.appendChild(dayHeader);
+  });
+  
+  // Generate calendar for current month
+  const today = new Date();
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  
+  // Add empty cells for days before the first day of the month
+  for (let i = 0; i < firstDay.getDay(); i++) {
+    const emptyDay = document.createElement('div');
+    emptyDay.className = 'calendar-day disabled';
+    calendarGrid.appendChild(emptyDay);
+  }
+  
+  // Add days of the month
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const date = new Date(year, month, day);
+    const dateStr = date.toISOString().split('T')[0];
+    const dayElement = document.createElement('div');
+    dayElement.className = 'calendar-day injector-calendar-day';
+    
+    // Check if day is in the past
+    if (date < today) {
+      dayElement.classList.add('disabled');
+    } else {
+      dayElement.onclick = () => selectMultiLocationDate(date);
+    }
+    
+    const dayNumber = document.createElement('div');
+    dayNumber.className = 'day-number';
+    dayNumber.textContent = day;
+    
+    const slotsContainer = document.createElement('div');
+    slotsContainer.className = 'calendar-slots';
+    
+    // Add slot indicators for visible locations
+    const dayData = injectorAvailabilityData[dateStr];
+    if (dayData) {
+      let hasSlots = false;
+      
+      Object.keys(dayData).forEach(locationName => {
+        if (!visibleLocations.has(locationName)) return;
+        
+        const slots = dayData[locationName];
+        if (slots && slots.length > 0) {
+          hasSlots = true;
+          
+          // Show up to 3 slot indicators per location
+          const slotsToShow = Math.min(3, slots.length);
+          for (let i = 0; i < slotsToShow; i++) {
+            const slotIndicator = document.createElement('div');
+            slotIndicator.className = 'slot-indicator';
+            slotIndicator.style.backgroundColor = locationColors[locationName];
+            slotIndicator.title = `${locationName} - ${slots.length} slot${slots.length > 1 ? 's' : ''}`;
+            slotsContainer.appendChild(slotIndicator);
+          }
+        }
+      });
+      
+      if (hasSlots) {
+        dayElement.classList.add('has-availability');
+      }
+    }
+    
+    dayElement.appendChild(dayNumber);
+    dayElement.appendChild(slotsContainer);
+    calendarGrid.appendChild(dayElement);
+  }
   
   container.appendChild(calendarHeader);
-  // Add the calendar grid and time slots like in the injector availability view
+  container.appendChild(calendarGrid);
+  
+  // Time slots container (initially hidden)
+  const timeSlotsContainer = document.createElement('div');
+  timeSlotsContainer.className = 'injector-time-slots';
+  timeSlotsContainer.id = 'multi-location-time-slots-container';
+  timeSlotsContainer.style.display = 'none';
+  container.appendChild(timeSlotsContainer);
+}
+    
+// Add missing function for multi-location date selection
+function selectMultiLocationDate(date) {
+  selectedDate = date;
+  const dateStr = date.toISOString().split('T')[0];
+  
+  // Update selected state in calendar
+  document.querySelectorAll('.injector-calendar-day').forEach(day => {
+    day.classList.remove('selected');
+  });
+  
+  // Find and select the clicked day
+  const dayElements = document.querySelectorAll('.injector-calendar-day');
+  dayElements.forEach(dayElement => {
+    const dayNumber = dayElement.querySelector('.day-number');
+    if (dayNumber && parseInt(dayNumber.textContent) === date.getDate()) {
+      dayElement.classList.add('selected');
+    }
+  });
+  
+  showMultiLocationTimeSlotsForDate(date);
+}
+
+// Add missing function for showing time slots
+function showMultiLocationTimeSlotsForDate(date) {
+  const dateStr = date.toISOString().split('T')[0];
+  const dayData = injectorAvailabilityData[dateStr];
+  
+  const timeSlotsContainer = document.getElementById('multi-location-time-slots-container');
+  timeSlotsContainer.innerHTML = '';
+  
+  if (!dayData) {
+    timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No availability data for this date</p>';
+    timeSlotsContainer.style.display = 'block';
+    return;
+  }
+  
+  const allSlots = [];
+  
+  // Collect all slots from visible locations
+  Object.keys(dayData).forEach(locationName => {
+    if (!visibleLocations.has(locationName)) return;
+    
+    const slots = dayData[locationName] || [];
+    slots.forEach(slot => {
+      allSlots.push({
+        ...slot,
+        locationName: locationName,
+        color: locationColors[locationName]
+      });
+    });
+  });
+  
+  if (allSlots.length === 0) {
+    timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No available times for this date</p>';
+  } else {
+    // Sort slots by time
+    allSlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    
+    allSlots.forEach(slot => {
+      const startTime = new Date(slot.startTime);
+      const timeStr = startTime.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      const timeSlot = document.createElement('div');
+      timeSlot.className = 'injector-time-slot';
+      timeSlot.onclick = () => selectMultiLocationTimeSlot(slot, timeStr, date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      }));
+      
+      const timeDiv = document.createElement('div');
+      timeDiv.className = 'slot-time';
+      timeDiv.textContent = timeStr;
+      
+      const locationDiv = document.createElement('div');
+      locationDiv.className = 'slot-location';
+      
+      const colorDiv = document.createElement('div');
+      colorDiv.className = 'slot-location-color';
+      colorDiv.style.backgroundColor = slot.color;
+      
+      const nameDiv = document.createElement('div');
+      nameDiv.textContent = slot.locationName;
+      
+      locationDiv.appendChild(colorDiv);
+      locationDiv.appendChild(nameDiv);
+      
+      timeSlot.appendChild(timeDiv);
+      timeSlot.appendChild(locationDiv);
+      
+      timeSlotsContainer.appendChild(timeSlot);
+    });
+  }
+  
+  timeSlotsContainer.style.display = 'block';
+  scrollToBottom();
+}
+
+// Add missing function for time slot selection
+function selectMultiLocationTimeSlot(slot, timeStr, dateStr) {
+  selectedTime = { id: slot.id, time: timeStr, date: dateStr, startTime: slot.startTime };
+  selectedLocation = slot.locationName;
+  selectedLocationId = LOCATIONS_DATA[slot.locationName].locationId;
+  
+  addMessage('user', `${dateStr} at ${timeStr} - ${slot.locationName}`);
+  addMessage('system', `Perfect! I've noted your appointment with ${selectedInjector} at ${slot.locationName} on ${dateStr} at ${timeStr}. Let me prepare your booking...`);
+  
+  // Now we need to create a proper cart for this location and complete the booking
+  createCartForInjectorBooking();
 }
 
 function navigateMultiLocationMonth(direction) {
@@ -2981,80 +3217,143 @@ function navigateMultiLocationMonth(direction) {
   loadMultiLocationAvailability();
 }
     function createCart() {
-      const formattedLocationId = selectedLocationId.indexOf('urn:blvd:Location:') === 0 ? 
-        selectedLocationId : 'urn:blvd:Location:' + selectedLocationId;
-      
-      const query = `
-        mutation CreateCart($locationId: ID!) {
-          createCart(input: { locationId: $locationId }) {
-            cart {
+  // Validate required state
+  if (!selectedLocationId) {
+    console.error('❌ No location selected for cart creation');
+    showErrorMessage('Please select a location first.', false);
+    return;
+  }
+  
+  const formattedLocationId = selectedLocationId.indexOf('urn:blvd:Location:') === 0 ? 
+    selectedLocationId : 'urn:blvd:Location:' + selectedLocationId;
+  
+  console.log('🛒 Creating cart for location:', selectedLocation, formattedLocationId);
+  
+  const query = `
+    mutation CreateCart($locationId: ID!) {
+      createCart(input: { locationId: $locationId }) {
+        cart {
+          id
+          expiresAt
+          availableCategories {
+            name
+            availableItems {
               id
-              expiresAt
-              availableCategories {
-                name
-                availableItems {
+              name
+              description
+              ... on CartAvailableBookableItem {
+                listPrice
+                listDuration
+                staffVariants {
                   id
-                  name
-                  description
-                  ... on CartAvailableBookableItem {
-                    listPrice
-                    listDuration
-                    staffVariants {
-                      id
-                      price
-                      duration
-                      staff {
-                        id
-                        firstName
-                        lastName
-                      }
-                    }
+                  price
+                  duration
+                  staff {
+                    id
+                    firstName
+                    lastName
                   }
                 }
               }
             }
           }
         }
-      `;
-      
-      makeBoulevardRequest(query, { locationId: formattedLocationId })
-        .then(data => {
-          const cart = data.createCart.cart;
-          cartId = cart.id;
-          console.log('Cart created:', cartId);
-          
-          loadServices(cart);
-        })
-        .catch(error => {
-          console.error('Cart creation failed:', error.message);
-          showErrorFallback('Unable to create booking session. Please try again or contact us.');
-        });
+      }
     }
+  `;
+  
+  makeBoulevardRequest(query, { locationId: formattedLocationId })
+    .then(data => {
+      if (!data || !data.createCart || !data.createCart.cart) {
+        throw new Error('Invalid cart creation response');
+      }
+      
+      const cart = data.createCart.cart;
+      cartId = cart.id;
+      console.log('✅ Cart created successfully:', cartId);
+      console.log('✅ Cart expires at:', cart.expiresAt);
+      console.log('✅ Available categories:', cart.availableCategories?.length || 0);
+      
+      loadServices(cart);
+    })
+    .catch(error => {
+      console.error('❌ Cart creation failed:', error);
+      
+      let errorMessage = 'Unable to create booking session.';
+      if (error.message.includes('Network')) {
+        errorMessage = 'Network connection issue. Please check your internet and try again.';
+      } else if (error.message.includes('permission') || error.message.includes('unauthorized')) {
+        errorMessage = 'Unable to access booking system. Please refresh the page and try again.';
+      } else if (error.message.includes('location')) {
+        errorMessage = 'Selected location is not available. Please choose a different location.';
+      }
+      
+      showErrorMessage(errorMessage, true);
+      
+      // Add fallback contact option
+      setTimeout(() => {
+        const container = document.getElementById('messages');
+        const contactMessage = document.createElement('div');
+        contactMessage.className = 'message system';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        
+        const contactButton = document.createElement('button');
+        contactButton.className = 'secondary-button';
+        contactButton.textContent = 'Contact us directly at (646) 346-8809';
+        contactButton.onclick = () => openSMS('cart-error');
+        
+        bubble.appendChild(contactButton);
+        contactMessage.appendChild(bubble);
+        container.appendChild(contactMessage);
+        scrollToBottom();
+      }, 1000);
+    });
+}
     
     function loadServices(cart) {
   const categories = cart.availableCategories || [];
   const services = [];
   
+  console.log('🔍 Loading services for treatment type:', treatmentType);
+  console.log('🔍 Available categories:', categories.map(c => c.name));
+  
   for (const category of categories) {
     let categoryItems = category.availableItems || [];
     
+    // Filter services based on treatment type
     if (treatmentType === 'injectable') {
-      categoryItems = categoryItems.filter(item => 
-        item.name.toLowerCase().includes('botox') ||
-        item.name.toLowerCase().includes('filler') ||
-        item.name.toLowerCase().includes('inject') ||
-        item.name.toLowerCase().includes('dysport') ||
-        category.name.toLowerCase().includes('inject')
-      );
+      categoryItems = categoryItems.filter(item => {
+        const itemName = item.name.toLowerCase();
+        const categoryName = category.name.toLowerCase();
+        return itemName.includes('botox') ||
+               itemName.includes('filler') ||
+               itemName.includes('inject') ||
+               itemName.includes('dysport') ||
+               itemName.includes('restylane') ||
+               itemName.includes('juvederm') ||
+               categoryName.includes('inject') ||
+               categoryName.includes('neuro') ||
+               categoryName.includes('filler');
+      });
     } else if (treatmentType === 'skin') {
-      categoryItems = categoryItems.filter(item => 
-        item.name.toLowerCase().includes('laser') ||
-        item.name.toLowerCase().includes('microneedling') ||
-        item.name.toLowerCase().includes('facial') ||
-        item.name.toLowerCase().includes('peel') ||
-        category.name.toLowerCase().includes('skin')
-      );
+      categoryItems = categoryItems.filter(item => {
+        const itemName = item.name.toLowerCase();
+        const categoryName = category.name.toLowerCase();
+        return itemName.includes('laser') ||
+               itemName.includes('microneedling') ||
+               itemName.includes('facial') ||
+               itemName.includes('peel') ||
+               itemName.includes('hydrafacial') ||
+               itemName.includes('dermaplaning') ||
+               categoryName.includes('skin') ||
+               categoryName.includes('facial') ||
+               categoryName.includes('laser');
+      });
     }
+    
+    console.log(`🔍 Category "${category.name}" filtered items:`, categoryItems.length);
     
     for (const item of categoryItems) {
       // Get staff variants for this service
@@ -3062,49 +3361,49 @@ function navigateMultiLocationMonth(direction) {
       
       // If we have a specific injector selected, filter to only their variants
       if (selectedInjectorId && selectedInjectorId !== 'first-available') {
+        console.log('🎯 Filtering staff variants for injector:', selectedInjectorId);
         staffVariants = staffVariants.filter(variant => 
           variant.staff && variant.staff.id === selectedInjectorId
         );
+        console.log('🎯 Found staff variants for injector:', staffVariants.length);
       }
       
-      services.push({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.listPrice,
-        duration: item.listDuration,
-        category: category.name,
-        staffVariants: staffVariants
-      });
+      // Only include services that either have no staff requirement or have the selected staff
+      if (staffVariants.length > 0 || (!selectedInjectorId || selectedInjectorId === 'first-available')) {
+        services.push({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.listPrice,
+          duration: item.listDuration,
+          category: category.name,
+          staffVariants: staffVariants
+        });
+      }
     }
   }
+  
+  console.log('🔍 Final filtered services:', services.length);
   
   if (services.length > 0) {
     availableServices = services;
     
     // Show staff selection for location-based injectable bookings (only if no specific injector selected)
-    if (bookingFlow === 'by-location' && treatmentType === 'injectable' && (!selectedInjectorId || selectedInjectorId === 'first-available')) {
+    if (bookingFlow === 'by-location' && 
+        treatmentType === 'injectable' && 
+        (!selectedInjectorId || selectedInjectorId === 'first-available')) {
+      console.log('🎯 Showing staff selection for location-based booking');
       showStaffSelectionForLocation();
       return;
     }
     
+    console.log('🎯 Proceeding directly to service selection');
     showServices();
   } else {
+    console.log('❌ No services found, showing fallback');
     showServiceFallback();
   }
 }
-      if (services.length > 0) {
-        availableServices = services;
-        // If booking by location for injectables, show staff selection first
-if (bookingFlow === 'by-location' && treatmentType === 'injectable') {
-  showStaffSelectionForLocation();
-  return;
-}
-        showServices();
-      } else {
-        showServiceFallback();
-      }
-    }
   
     function showServices() {
       const treatmentLabel = treatmentType === 'injectable' ? 'injectable treatments' : 'skin treatments';
@@ -3361,6 +3660,13 @@ function selectClientType(clientType) {
     }
     
     function renderCalendar() {
+  // Initialize calendar date if not set
+  if (!currentCalendarDate) {
+    currentCalendarDate = new Date();
+    currentCalendarDate.setDate(1);
+    currentCalendarDate.setHours(0, 0, 0, 0);
+  }
+  
   const container = document.getElementById('availability-container');
   container.innerHTML = '';
   
@@ -3371,6 +3677,15 @@ function selectClientType(clientType) {
   const prevButton = document.createElement('button');
   prevButton.className = 'calendar-nav';
   prevButton.textContent = '← Previous';
+  
+  // Disable previous button if we're at current month
+  const today = new Date();
+  const isCurrentMonth = currentCalendarDate.getFullYear() === today.getFullYear() && 
+                         currentCalendarDate.getMonth() === today.getMonth();
+  if (isCurrentMonth) {
+    prevButton.disabled = true;
+  }
+  
   prevButton.onclick = () => navigateMonth(-1);
   
   const calendarTitle = document.createElement('div');
@@ -3399,12 +3714,11 @@ function selectClientType(clientType) {
     calendarGrid.appendChild(dayHeader);
   });
   
-  // Generate calendar days - USE currentCalendarDate instead of today
+  // Generate calendar days using currentCalendarDate
   const year = currentCalendarDate.getFullYear();
   const month = currentCalendarDate.getMonth();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const today = new Date();
   
   // Add empty cells for days before the first day of the month
   for (let i = 0; i < firstDay.getDay(); i++) {
@@ -3459,7 +3773,26 @@ function selectClientType(clientType) {
 }
     
   function navigateMonth(direction) {
-  currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+  // Initialize calendar date if not set
+  if (!currentCalendarDate) {
+    currentCalendarDate = new Date();
+    currentCalendarDate.setDate(1);
+    currentCalendarDate.setHours(0, 0, 0, 0);
+  }
+  
+  const newDate = new Date(currentCalendarDate);
+  newDate.setMonth(newDate.getMonth() + direction);
+  
+  // Don't allow navigation to past months
+  const today = new Date();
+  if (newDate.getFullYear() < today.getFullYear() || 
+      (newDate.getFullYear() === today.getFullYear() && newDate.getMonth() < today.getMonth())) {
+    console.log('Cannot navigate to past months');
+    return; // Don't navigate to past months
+  }
+  
+  console.log('Navigating to:', newDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
+  currentCalendarDate = newDate;
   
   // Clear existing availability data for the new month
   calendarAvailability = {};
@@ -3979,6 +4312,177 @@ function selectClientType(clientType) {
     }
     
     console.log('✅ Script fully loaded with proxy API integration');
+    // ADD THESE MISSING FUNCTIONS TO YOUR SCRIPT
+
+// Missing function for multi-location date selection
+function selectMultiLocationDate(date) {
+  selectedDate = date;
+  const dateStr = date.toISOString().split('T')[0];
+  
+  // Update selected state in calendar
+  document.querySelectorAll('.injector-calendar-day').forEach(day => {
+    day.classList.remove('selected');
+  });
+  
+  // Find and select the clicked day
+  const dayElements = document.querySelectorAll('.injector-calendar-day');
+  dayElements.forEach(dayElement => {
+    const dayNumber = dayElement.querySelector('.day-number');
+    if (dayNumber && parseInt(dayNumber.textContent) === date.getDate()) {
+      dayElement.classList.add('selected');
+    }
+  });
+  
+  showMultiLocationTimeSlotsForDate(date);
+}
+
+// Missing function for showing multi-location time slots
+function showMultiLocationTimeSlotsForDate(date) {
+  const dateStr = date.toISOString().split('T')[0];
+  const dayData = injectorAvailabilityData[dateStr];
+  
+  const timeSlotsContainer = document.getElementById('multi-location-time-slots-container');
+  timeSlotsContainer.innerHTML = '';
+  
+  if (!dayData) {
+    timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No availability data for this date</p>';
+    timeSlotsContainer.style.display = 'block';
+    return;
+  }
+  
+  const allSlots = [];
+  
+  // Collect all slots from visible locations
+  Object.keys(dayData).forEach(locationName => {
+    if (!visibleLocations.has(locationName)) return;
+    
+    const slots = dayData[locationName] || [];
+    slots.forEach(slot => {
+      allSlots.push({
+        ...slot,
+        locationName: locationName,
+        color: locationColors[locationName]
+      });
+    });
+  });
+  
+  if (allSlots.length === 0) {
+    timeSlotsContainer.innerHTML = '<p style="text-align: center; color: #86868b; padding: 20px;">No available times for this date</p>';
+  } else {
+    // Sort slots by time
+    allSlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    
+    allSlots.forEach(slot => {
+      const startTime = new Date(slot.startTime);
+      const timeStr = startTime.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      const timeSlot = document.createElement('div');
+      timeSlot.className = 'injector-time-slot';
+      timeSlot.onclick = () => selectMultiLocationTimeSlot(slot, timeStr, date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      }));
+      
+      const timeDiv = document.createElement('div');
+      timeDiv.className = 'slot-time';
+      timeDiv.textContent = timeStr;
+      
+      const locationDiv = document.createElement('div');
+      locationDiv.className = 'slot-location';
+      
+      const colorDiv = document.createElement('div');
+      colorDiv.className = 'slot-location-color';
+      colorDiv.style.backgroundColor = slot.color;
+      
+      const nameDiv = document.createElement('div');
+      nameDiv.textContent = slot.locationName;
+      
+      locationDiv.appendChild(colorDiv);
+      locationDiv.appendChild(nameDiv);
+      
+      timeSlot.appendChild(timeDiv);
+      timeSlot.appendChild(locationDiv);
+      
+      timeSlotsContainer.appendChild(timeSlot);
+    });
+  }
+  
+  timeSlotsContainer.style.display = 'block';
+  scrollToBottom();
+}
+
+// Missing function for multi-location time slot selection
+function selectMultiLocationTimeSlot(slot, timeStr, dateStr) {
+  selectedTime = { id: slot.id, time: timeStr, date: dateStr, startTime: slot.startTime };
+  selectedLocation = slot.locationName;
+  selectedLocationId = LOCATIONS_DATA[slot.locationName].locationId;
+  
+  addMessage('user', `${dateStr} at ${timeStr} - ${slot.locationName}`);
+  addMessage('system', `Perfect! I've noted your appointment with ${selectedInjector} at ${slot.locationName} on ${dateStr} at ${timeStr}. Let me prepare your booking...`);
+  
+  // Now we need to create a proper cart for this location and complete the booking
+  createCartForInjectorBooking();
+}
+
+// Enhanced error message function
+function showErrorMessage(message, isRetryable = true) {
+  const container = document.getElementById('messages');
+  const errorMessage = document.createElement('div');
+  errorMessage.className = 'message system';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'message-bubble';
+  
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error-message';
+  errorDiv.innerHTML = `<strong>⚠️ ${message}</strong>`;
+  
+  bubble.appendChild(errorDiv);
+  
+  // Add retry button for retryable errors
+  if (isRetryable) {
+    const retryButton = document.createElement('button');
+    retryButton.className = 'secondary-button';
+    retryButton.textContent = 'Try Again';
+    retryButton.onclick = () => {
+      errorMessage.remove();
+      // Try to restart the current step
+      if (selectedLocation && !cartId) {
+        createCart();
+      } else if (!selectedLocation) {
+        showLocationSelection();
+      } else {
+        startConversation();
+      }
+    };
+    bubble.appendChild(retryButton);
+  }
+  
+  // Always add contact option
+  const contactButton = document.createElement('button');
+  contactButton.className = 'secondary-button';
+  contactButton.textContent = 'Contact Support';
+  contactButton.onclick = () => openSMS('error-help');
+  bubble.appendChild(contactButton);
+  
+  errorMessage.appendChild(bubble);
+  container.appendChild(errorMessage);
+  scrollToBottom();
+}
+
+// Initialize calendar date helper
+function initializeCalendarDate() {
+  if (!currentCalendarDate) {
+    currentCalendarDate = new Date();
+    currentCalendarDate.setDate(1);
+    currentCalendarDate.setHours(0, 0, 0, 0);
+  }
+}
   </script>
 </body>
 </html>
