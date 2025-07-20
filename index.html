@@ -970,7 +970,7 @@
     })
   })
   .then(response => {
-    console.log('🔥 Boulevard response status:', response.status);
+    console.log('🔍 Boulevard response status:', response.status);
     
     // Handle different HTTP status codes
     if (response.status === 429) {
@@ -992,10 +992,10 @@
     return response.json();
   })
   .then(data => {
-    console.log('🔥 Boulevard response data:', data);
+    console.log('🔍 Boulevard response data:', data);
     
     if (data.errors && data.errors.length > 0) {
-      console.error('🔥 Boulevard GraphQL errors:', data.errors);
+      console.error('🔍 Boulevard GraphQL errors:', data.errors);
       
       // Handle specific GraphQL error types
       const error = data.errors[0];
@@ -1013,7 +1013,7 @@
     return data.data;
   })
   .catch(error => {
-    console.error('🔥 Boulevard request failed:', error);
+    console.error('🔍 Boulevard request failed:', error);
     
     // Handle network errors
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -1272,9 +1272,7 @@
       injectorAvailabilityData = {};
       
       addMessage('system', "Hi! Welcome to Plump. I'll help you book your appointment.", function() {
-        addMessage('system', "What type of treatment are you interested in?", function() {
-          showTreatmentTypeSelection();
-        });
+        showClientSelection();
       });
     }
     
@@ -1282,7 +1280,7 @@
       const container = document.getElementById('messages');
       
       if (type === 'system') {
-        showTyping(function() {
+        showTypingIndicator(function() {
           const message = document.createElement('div');
           message.className = 'message ' + type;
           
@@ -1316,7 +1314,7 @@
       }
     }
     
-    function showTyping(callback) {
+    function showTypingIndicator(callback) {
       const container = document.getElementById('messages');
       const typingMessage = document.createElement('div');
       typingMessage.className = 'message system';
@@ -1424,13 +1422,13 @@
   
   if (type === 'injectable') {
     addMessage('user', 'Injectable Treatments');
-    addMessage('system', 'Great! First, what type of client are you?', function() {
-      showClientSelection();
+    addMessage('system', 'Great! For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
+      showInjectableBookingFlow();
     });
   } else if (type === 'skin') {
     addMessage('user', 'Skin Treatments');
-    addMessage('system', 'Perfect! First, what type of client are you?', function() {
-      showClientSelection();
+    addMessage('system', 'Perfect! Please select your preferred location:', function() {
+      showLocationSelection();
     });
   } else if (type === 'injector-availability') {
     addMessage('user', 'See a Specific Injector\'s Availability');
@@ -2313,6 +2311,9 @@
   calendarMessage.appendChild(bubble);
   container.appendChild(calendarMessage);
   scrollToBottom();
+
+  renderInjectorAvailabilityCalendar();
+}
 
     
     function renderInjectorAvailabilityCalendar() {
@@ -3519,22 +3520,6 @@ function navigateMultiLocationMonth(direction) {
   grid.className = 'treatment-grid';
   grid.style.gridTemplateColumns = '1fr'; // Stack vertically for 3 options
   
-  // Existing client button
-  const existingClientButton = document.createElement('button');
-  existingClientButton.className = 'treatment-button';
-  existingClientButton.onclick = () => selectClientType('existing');
-  
-  const existingClientTitle = document.createElement('div');
-  existingClientTitle.className = 'treatment-title';
-  existingClientTitle.textContent = 'Existing Client';
-  
-  const existingClientDesc = document.createElement('div');
-  existingClientDesc.className = 'treatment-desc';
-  existingClientDesc.textContent = 'I\'ve been to Get Plump before';
-  
-  existingClientButton.appendChild(existingClientTitle);
-  existingClientButton.appendChild(existingClientDesc);
-  
   // New client button
   const newClientButton = document.createElement('button');
   newClientButton.className = 'treatment-button';
@@ -3550,6 +3535,22 @@ function navigateMultiLocationMonth(direction) {
   
   newClientButton.appendChild(newClientTitle);
   newClientButton.appendChild(newClientDesc);
+  
+  // Returning client button
+  const returningClientButton = document.createElement('button');
+  returningClientButton.className = 'treatment-button';
+  returningClientButton.onclick = () => selectClientType('returning');
+  
+  const returningClientTitle = document.createElement('div');
+  returningClientTitle.className = 'treatment-title';
+  returningClientTitle.textContent = 'Returning Client';
+  
+  const returningClientDesc = document.createElement('div');
+  returningClientDesc.className = 'treatment-desc';
+  returningClientDesc.textContent = 'I have been to Get Plump before';
+  
+  returningClientButton.appendChild(returningClientTitle);
+  returningClientButton.appendChild(returningClientDesc);
   
   // Member button (special styling)
   const memberButton = document.createElement('button');
@@ -3567,8 +3568,8 @@ function navigateMultiLocationMonth(direction) {
   memberButton.appendChild(memberTitle);
   memberButton.appendChild(memberDesc);
   
-  grid.appendChild(existingClientButton);
   grid.appendChild(newClientButton);
+  grid.appendChild(returningClientButton);
   grid.appendChild(memberButton);
   
   bubble.appendChild(grid);
@@ -3579,8 +3580,8 @@ function navigateMultiLocationMonth(direction) {
 
 function selectClientType(clientType) {
   const clientTypeNames = {
-    'existing': 'Existing Client',
-    'new': 'New Client', 
+    'new': 'New Client',
+    'returning': 'Returning Client',
     'member': 'Member'
   };
   
@@ -3594,18 +3595,13 @@ function selectClientType(clientType) {
     message = 'Perfect! As a new client, you\'ll receive our new client special pricing.';
   } else if (clientType === 'member') {
     message = 'Welcome back! Applying your member benefits.';
+  } else if (clientType === 'returning') {
+    message = 'Welcome back!';
   }
   
-  // Continue based on treatment type
-  if (treatmentType === 'injectable') {
-    addMessage('system', message + ' For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
-      showInjectableBookingFlow();
-    });
-  } else if (treatmentType === 'skin') {
-    addMessage('system', message + ' Please select your preferred location:', function() {
-      showLocationSelection();
-    });
-  }
+  addMessage('system', message + ' What type of treatment are you interested in?', function() {
+    showTreatmentTypeSelection();
+  });
 }
     
     function loadCalendarAvailability() {
@@ -4317,7 +4313,7 @@ function selectMultiLocationDate(date) {
   showMultiLocationTimeSlotsForDate(date);
 }
 
-// Missing function for showing multi-location time slots
+// Missing function for showing time slots
 function showMultiLocationTimeSlotsForDate(date) {
   const dateStr = date.toISOString().split('T')[0];
   const dayData = injectorAvailabilityData[dateStr];
@@ -4397,7 +4393,7 @@ function showMultiLocationTimeSlotsForDate(date) {
   scrollToBottom();
 }
 
-// Missing function for multi-location time slot selection
+// Missing function for time slot selection
 function selectMultiLocationTimeSlot(slot, timeStr, dateStr) {
   selectedTime = { id: slot.id, time: timeStr, date: dateStr, startTime: slot.startTime };
   selectedLocation = slot.locationName;
