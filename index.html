@@ -2915,13 +2915,83 @@
       makeBoulevardRequest(mutation, variables)
         .then(data => {
           console.log('Service added to cart');
-          loadCalendarAvailability();
+          showClientSelection();
         })
         .catch(error => {
           console.error('Failed to add service:', error.message);
           showErrorFallback('Unable to add service. Please try again or contact us.');
         });
     }
+    function showClientSelection() {
+  addMessage('system', 'Is this appointment for a new client or an existing client?', function() {
+    const container = document.getElementById('messages');
+    const clientMessage = document.createElement('div');
+    clientMessage.className = 'message system';
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    
+    const grid = document.createElement('div');
+    grid.className = 'treatment-grid';
+    
+    // New client button
+    const newClientButton = document.createElement('button');
+    newClientButton.className = 'treatment-button';
+    newClientButton.onclick = () => selectClientType('new');
+    
+    const newClientTitle = document.createElement('div');
+    newClientTitle.className = 'treatment-title';
+    newClientTitle.textContent = 'New Client';
+    
+    const newClientDesc = document.createElement('div');
+    newClientDesc.className = 'treatment-desc';
+    newClientDesc.textContent = 'First time at Get Plump';
+    
+    newClientButton.appendChild(newClientTitle);
+    newClientButton.appendChild(newClientDesc);
+    
+    // Existing client button
+    const existingClientButton = document.createElement('button');
+    existingClientButton.className = 'treatment-button';
+    existingClientButton.onclick = () => selectClientType('existing');
+    
+    const existingClientTitle = document.createElement('div');
+    existingClientTitle.className = 'treatment-title';
+    existingClientTitle.textContent = 'Existing Client';
+    
+    const existingClientDesc = document.createElement('div');
+    existingClientDesc.className = 'treatment-desc';
+    existingClientDesc.textContent = 'I\'ve been to Get Plump before';
+    
+    existingClientButton.appendChild(existingClientTitle);
+    existingClientButton.appendChild(existingClientDesc);
+    
+    grid.appendChild(newClientButton);
+    grid.appendChild(existingClientButton);
+    
+    bubble.appendChild(grid);
+    clientMessage.appendChild(bubble);
+    container.appendChild(clientMessage);
+    scrollToBottom();
+  });
+}
+
+function selectClientType(clientType) {
+  addMessage('user', clientType === 'new' ? 'New Client' : 'Existing Client');
+  
+  // Store client type for later use
+  clientInfo.clientType = clientType;
+  
+  if (clientType === 'new') {
+    addMessage('system', 'Perfect! As a new client, you\'ll receive our new client special pricing. Let me find available appointment times...', function() {
+      loadCalendarAvailability();
+    });
+  } else {
+    addMessage('system', 'Great! Let me find available appointment times for your return visit...', function() {
+      loadCalendarAvailability();
+    });
+  }
+}
     
     function loadCalendarAvailability() {
       addMessage('system', 'Here are the available appointment times:', function() {
