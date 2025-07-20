@@ -2313,33 +2313,7 @@
   calendarMessage.appendChild(bubble);
   container.appendChild(calendarMessage);
   scrollToBottom();
-  
-  renderInjectorAvailabilityCalendar();
-}
-    
-    function toggleLocationVisibility(locationName) {
-      if (visibleLocations.has(locationName)) {
-        visibleLocations.delete(locationName);
-      } else {
-        visibleLocations.add(locationName);
-      }
-      
-      // Update legend items
-      const legendItems = document.querySelectorAll('.legend-item');
-      legendItems.forEach(item => {
-        const locationText = item.textContent;
-        if (locationText === locationName) {
-          if (visibleLocations.has(locationName)) {
-            item.classList.remove('inactive');
-          } else {
-            item.classList.add('inactive');
-          }
-        }
-      });
-      
-      // Re-render calendar
-      renderInjectorAvailabilityCalendar();
-    }
+
     
     function renderInjectorAvailabilityCalendar() {
   const container = document.getElementById('injector-availability-container');
