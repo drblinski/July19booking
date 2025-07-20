@@ -1,15 +1,25 @@
 /**
  * Configuration and Constants
- * Fixed browser compatibility - removed process.env reference
+ * Fixed for Vercel deployment - browser-compatible
  */
 
 const CONFIG = {
-  // Your API Configuration - Fixed for browser environment
+  // API Configuration - Fixed for browser/Vercel
   API: {
-    baseUrl: window.ENV?.API_BASE_URL || '/api', // Fixed: removed process.env
+    // Use window.location to determine environment
+    baseUrl: (() => {
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:3000/api'; // Local development
+      } else if (hostname.includes('vercel.app')) {
+        return 'https://your-api-domain.vercel.app/api'; // Vercel staging
+      } else {
+        return 'https://your-production-api.com/api'; // Production
+      }
+    })(),
     endpoints: {
       locations: '/locations',
-      staff: '/staff',
+      staff: '/staff', 
       cart: '/cart',
       services: '/services',
       availability: '/availability',
@@ -73,8 +83,7 @@ const CONFIG = {
     }
   },
 
-  // Color palette for location indicators
   LOCATION_COLORS: ['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#5856D6', '#AF52DE', '#FF2D92', '#64D2FF']
 };
 
-console.log('✅ Config loaded successfully');
+console.log('✅ Config loaded - API URL:', CONFIG.API.baseUrl);
