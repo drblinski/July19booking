@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Appointment | Get Plump</title>
+  <title>Book Appointment | Plump</title>
   
   <style>
     * {
@@ -33,6 +33,32 @@
       flex-direction: column;
       height: 80vh;
       min-height: 600px;
+    }
+    
+    .booking-widget.member-mode {
+      background: #000;
+    }
+    
+    .booking-widget.member-mode .messages-container {
+      background: #1d1d1f;
+    }
+    
+    .booking-widget.member-mode .message.system .message-bubble {
+      background: #2c2c2e;
+      color: #fff;
+    }
+    
+    .booking-widget.member-mode .chat-header {
+      background: #000;
+      color: #fff;
+    }
+    
+    .booking-widget.member-mode .chat-title {
+      color: #fff;
+    }
+    
+    .booking-widget.member-mode .chat-subtitle {
+      color: #a5a5a7;
     }
     
     .chat-header {
@@ -870,7 +896,7 @@
 <body>
   <div class="booking-widget">
     <div class="chat-header">
-      <div class="chat-title">Get Plump Booking</div>
+      <div class="chat-title">Plump Booking</div>
       <div class="chat-subtitle">Book your appointment</div>
     </div>
     
@@ -1270,6 +1296,7 @@
       locationColors = {};
       visibleLocations = new Set();
       injectorAvailabilityData = {};
+      document.querySelector('.booking-widget').classList.remove('member-mode');
       
       addMessage('system', "Hi! Welcome to Plump. I'll help you book your appointment.", function() {
         showClientSelection();
@@ -1398,11 +1425,11 @@
       
       const injectorAvailTitle = document.createElement('div');
       injectorAvailTitle.className = 'treatment-title';
-      injectorAvailTitle.textContent = 'See a Specific Injector\'s Availability';
+      injectorAvailTitle.textContent = 'See Staff Schedule';
       
       const injectorAvailDesc = document.createElement('div');
       injectorAvailDesc.className = 'treatment-desc';
-      injectorAvailDesc.textContent = 'View open slots for your preferred injector across all locations';
+      injectorAvailDesc.textContent = 'View open slots for your preferred staff across all locations';
       
       injectorAvailButton.appendChild(injectorAvailTitle);
       injectorAvailButton.appendChild(injectorAvailDesc);
@@ -1422,7 +1449,7 @@
   
   if (type === 'injectable') {
     addMessage('user', 'Injectable Treatments');
-    addMessage('system', 'Great! For injectable treatments, would you like to book with a specific injector or choose a location first?', function() {
+    addMessage('system', 'Great! For injectable treatments, would you like to book with a specific staff or choose a location first?', function() {
       showInjectableBookingFlow();
     });
   } else if (type === 'skin') {
@@ -1431,8 +1458,8 @@
       showLocationSelection();
     });
   } else if (type === 'injector-availability') {
-    addMessage('user', 'See a Specific Injector\'s Availability');
-    addMessage('system', 'Perfect! Let me load our team of injectors and their availability...', function() {
+    addMessage('user', 'See Staff Schedule');
+    addMessage('system', 'Perfect! Let me load our team and their availability...', function() {
       loadInjectorsForAvailability();
     });
   }
@@ -1456,11 +1483,11 @@
       
       const injectorTitle = document.createElement('div');
       injectorTitle.className = 'treatment-title';
-      injectorTitle.textContent = 'Book by Injector';
+      injectorTitle.textContent = 'Book by Staff';
       
       const injectorDesc = document.createElement('div');
       injectorDesc.className = 'treatment-desc';
-      injectorDesc.textContent = 'Choose your preferred injector first';
+      injectorDesc.textContent = 'Choose your preferred staff first';
       
       injectorButton.appendChild(injectorTitle);
       injectorButton.appendChild(injectorDesc);
@@ -1492,10 +1519,10 @@
     
     function selectBookingFlow(flow) {
       bookingFlow = flow;
-      addMessage('user', flow === 'by-injector' ? 'Book by Injector' : 'Book by Location');
+      addMessage('user', flow === 'by-injector' ? 'Book by Staff' : 'Book by Location');
       
       if (flow === 'by-injector') {
-        addMessage('system', 'Let me show you our available injectors...', function() {
+        addMessage('system', 'Let me show you our available staff...', function() {
           loadInjectors();
         });
       } else {
@@ -1509,7 +1536,7 @@
       console.log('🔍 Loading injectors from Boulevard API...');
       
       // Show loading state
-      addMessage('system', 'Loading our team of injectors...');
+      addMessage('system', 'Loading our team...');
       
       // Check all locations to get complete staff list
       const locationEntries = Object.entries(LOCATIONS_DATA);
@@ -1745,6 +1772,14 @@
           role: { name: 'Senior Aesthetician' },
           avatar: null,
           locations: ['Hoboken', 'Miami']
+        },
+        {
+          id: 'staff11',
+          firstName: 'Dr.',
+          lastName: 'Blinski',
+          role: { name: 'Injector' },
+          avatar: null,
+          locations: ['Miami']
         }
       ];
       
@@ -1815,7 +1850,7 @@
       
       const smsButton = document.createElement('button');
       smsButton.className = 'secondary-button';
-      smsButton.textContent = "Don't see your preferred injector? Contact us";
+      smsButton.textContent = "Don't see your preferred staff? Contact us";
       smsButton.onclick = () => openSMS('injector-inquiry');
       bubble.appendChild(smsButton);
       
@@ -1837,7 +1872,7 @@
       
       const bubble = document.createElement('div');
       bubble.className = 'message-bubble';
-      bubble.textContent = 'Loading our team of injectors...';
+      bubble.textContent = 'Loading our team...';
       
       loadingMessage.appendChild(bubble);
       container.appendChild(loadingMessage);
@@ -1986,6 +2021,13 @@
           lastName: 'Martinez',
           avatar: null,
           locations: ['SoHo', 'Tribeca']
+        },
+        {
+          id: 'staff11',
+          firstName: 'Dr.',
+          lastName: 'Blinski',
+          avatar: null,
+          locations: ['Miami']
         }
       ];
       
@@ -2028,7 +2070,7 @@
       
       const bubble = document.createElement('div');
       bubble.className = 'message-bubble';
-      bubble.innerHTML = 'Select an injector to view their availability across all locations:';
+      bubble.innerHTML = 'Select a staff member to view their availability across all locations:';
       
       const injectorContainer = document.createElement('div');
       injectorContainer.className = 'injector-container';
@@ -2198,13 +2240,15 @@
             itemId: selectedServiceId,
             itemStaffVariantId: selectedStaffVariantId
           }).then(() => {
-            // Load availability for the next 30 days
+            // Load availability for the current month
             const promises = [];
-            const today = new Date();
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
             
-            for (let i = 0; i < 30; i++) {
-              const date = new Date(today);
-              date.setDate(date.getDate() + i);
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+              const date = new Date(year, month, day);
               promises.push(loadAvailabilityForInjectorDate(cart.id, date, locationName));
             }
             
@@ -2213,46 +2257,6 @@
         })
         .catch(error => {
           console.error(`Failed to load availability for ${locationName}:`, error);
-        });
-    }
-    
-    function loadAvailabilityForInjectorDate(cartId, date, locationName) {
-      const dateStr = date.toISOString().split('T')[0];
-      
-      const query = `
-        query GetCartBookableTimes($cartId: ID!, $searchDate: Date!) {
-          cartBookableTimes(
-            id: $cartId,
-            searchDate: $searchDate,
-            tz: "America/New_York"
-          ) {
-            id
-            startTime
-          }
-        }
-      `;
-      
-      return makeBoulevardRequest(query, { 
-        cartId: cartId, 
-        searchDate: dateStr 
-      })
-        .then(data => {
-          const times = data.cartBookableTimes || [];
-          
-          if (!injectorAvailabilityData[dateStr]) {
-            injectorAvailabilityData[dateStr] = {};
-          }
-          
-          injectorAvailabilityData[dateStr][locationName] = times;
-          return times;
-        })
-        .catch(error => {
-          console.error('Failed to load availability for', dateStr, locationName, error);
-          if (!injectorAvailabilityData[dateStr]) {
-            injectorAvailabilityData[dateStr] = {};
-          }
-          injectorAvailabilityData[dateStr][locationName] = [];
-          return [];
         });
     }
     
@@ -2723,9 +2727,12 @@ function selectInjector(injectorId, injectorName) {
       addMessage('system', `Perfect! ${selectedInjector} works at our ${selectedLocation} location. Creating your booking session...`);
       createCart();
     } else {
-      // Works at multiple locations - show selection but prepare for calendar toggle
-      addMessage('system', `Great! ${selectedInjector} works at multiple locations. Please select your preferred location:`, function() {
-        showLocationSelection();
+      // Works at multiple locations - show multi-location calendar
+      addMessage('system', `Great! ${selectedInjector} works at multiple locations. Let me show their availability across all...`, function() {
+        injectorLocations = selectedStaff.locations;
+        visibleLocations = new Set(injectorLocations);
+        assignLocationColors([selectedStaff]);
+        loadInjectorAvailabilityAcrossLocations();
       });
     }
   } else {
@@ -2736,7 +2743,7 @@ function selectInjector(injectorId, injectorName) {
   }
 }
     function showStaffSelectionForLocation() {
-  addMessage('system', `Great! Would you like to choose a specific injector at ${selectedLocation}?`, function() {
+  addMessage('system', `Great! First available or select a staff member at ${selectedLocation}?`, function() {
     const container = document.getElementById('messages');
     const staffMessage = document.createElement('div');
     staffMessage.className = 'message system';
@@ -3173,7 +3180,7 @@ function showMultiLocationTimeSlotsForDate(date) {
   scrollToBottom();
 }
 
-// Add missing function for time slot selection
+// Missing function for time slot selection
 function selectMultiLocationTimeSlot(slot, timeStr, dateStr) {
   selectedTime = { id: slot.id, time: timeStr, date: dateStr, startTime: slot.startTime };
   selectedLocation = slot.locationName;
@@ -3320,19 +3327,11 @@ function navigateMultiLocationMonth(direction) {
                categoryName.includes('filler');
       });
     } else if (treatmentType === 'skin') {
-      categoryItems = categoryItems.filter(item => {
-        const itemName = item.name.toLowerCase();
-        const categoryName = category.name.toLowerCase();
-        return itemName.includes('laser') ||
-               itemName.includes('microneedling') ||
-               itemName.includes('facial') ||
-               itemName.includes('peel') ||
-               itemName.includes('hydrafacial') ||
-               itemName.includes('dermaplaning') ||
-               categoryName.includes('skin') ||
-               categoryName.includes('facial') ||
-               categoryName.includes('laser');
-      });
+      if (category.name === 'Medical Grade Skin Treatments') {
+        categoryItems = category.availableItems || [];
+      } else {
+        categoryItems = [];
+      }
     }
     
     console.log(`🔍 Category "${category.name}" filtered items:`, categoryItems.length);
@@ -3370,9 +3369,8 @@ function navigateMultiLocationMonth(direction) {
   if (services.length > 0) {
     availableServices = services;
     
-    // Show staff selection for location-based injectable bookings (only if no specific injector selected)
+    // For by-location, if no injector, show staff selection
     if (bookingFlow === 'by-location' && 
-        treatmentType === 'injectable' && 
         (!selectedInjectorId || selectedInjectorId === 'first-available')) {
       console.log('🎯 Showing staff selection for location-based booking');
       showStaffSelectionForLocation();
@@ -3421,7 +3419,11 @@ function navigateMultiLocationMonth(direction) {
           
           const priceDiv = document.createElement('div');
           priceDiv.className = 'service-price';
-          priceDiv.textContent = service.price ? `$${Math.round(service.price / 100)}` : 'Contact for pricing';
+          if (clientInfo.clientType === 'member') {
+            priceDiv.textContent = 'Membership Pricing';
+          } else {
+            priceDiv.textContent = service.price ? `$${Math.round(service.price / 100)}` : 'Contact for pricing';
+          }
           
           button.appendChild(serviceInfo);
           button.appendChild(priceDiv);
@@ -3531,7 +3533,7 @@ function navigateMultiLocationMonth(direction) {
   
   const newClientDesc = document.createElement('div');
   newClientDesc.className = 'treatment-desc';
-  newClientDesc.textContent = 'First time at Get Plump';
+  newClientDesc.textContent = 'First time at Plump';
   
   newClientButton.appendChild(newClientTitle);
   newClientButton.appendChild(newClientDesc);
@@ -3547,7 +3549,7 @@ function navigateMultiLocationMonth(direction) {
   
   const returningClientDesc = document.createElement('div');
   returningClientDesc.className = 'treatment-desc';
-  returningClientDesc.textContent = 'I have been to Get Plump before';
+  returningClientDesc.textContent = 'I have been to Plump before';
   
   returningClientButton.appendChild(returningClientTitle);
   returningClientButton.appendChild(returningClientDesc);
@@ -3563,7 +3565,7 @@ function navigateMultiLocationMonth(direction) {
   
   const memberDesc = document.createElement('div');
   memberDesc.className = 'treatment-desc';
-  memberDesc.textContent = 'I\'m a Get Plump member';
+  memberDesc.textContent = 'I\'m a Plump member';
   
   memberButton.appendChild(memberTitle);
   memberButton.appendChild(memberDesc);
@@ -3590,6 +3592,10 @@ function selectClientType(clientType) {
   // Store client type for later use
   clientInfo.clientType = clientType;
   
+  if (clientType === 'member') {
+    document.querySelector('.booking-widget').classList.add('member-mode');
+  }
+  
   let message = 'Perfect!';
   if (clientType === 'new') {
     message = 'Perfect! As a new client, you\'ll receive our new client special pricing.';
@@ -3601,6 +3607,38 @@ function selectClientType(clientType) {
   
   addMessage('system', message + ' What type of treatment are you interested in?', function() {
     showTreatmentTypeSelection();
+  });
+}
+    
+    function toggleLocationVisibility(locationName) {
+  if (visibleLocations.has(locationName)) {
+    visibleLocations.delete(locationName);
+  } else {
+    visibleLocations.add(locationName);
+  }
+
+  // Re-render the calendar
+  if (treatmentType === 'injector-availability') {
+    renderInjectorAvailabilityCalendar();
+  } else {
+    renderMultiLocationCalendar();
+  }
+
+  // If a date is selected, re-show time slots
+  if (selectedDate) {
+    if (treatmentType === 'injector-availability') {
+      showInjectorTimeSlotsForDate(selectedDate);
+    } else {
+      showMultiLocationTimeSlotsForDate(selectedDate);
+    }
+  }
+
+  // Update legend items
+  const legendItems = document.querySelectorAll('.legend-item');
+  legendItems.forEach(item => {
+    if (item.textContent === locationName) {
+      item.classList.toggle('inactive');
+    }
   });
 }
     
@@ -4259,12 +4297,12 @@ function selectClientType(clientType) {
     }
     
     function openSMS(context) {
-      let message = "I'd like to book an appointment at Get Plump";
+      let message = "I'd like to book an appointment at Plump";
       
       if (context === 'follow-up') {
         message = "I just completed a booking and have a question";
       } else if (context === 'injector-inquiry') {
-        message = 'I\'m looking for a specific injector that wasn\'t listed';
+        message = 'I\'m looking for a specific staff that wasn\'t listed';
       } else if (context === 'service-inquiry') {
         message = `I'm looking for services at ${selectedLocation} but need different options`;
       } else if (context === 'time-inquiry') {
